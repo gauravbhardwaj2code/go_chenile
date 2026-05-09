@@ -1,4 +1,3 @@
-module github.com/ajapro/chenile-go/base
+module base
 
 go 1.22
-

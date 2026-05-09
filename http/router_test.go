@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ajapro/chenile-go/core"
+	"core"
 )
 
 type createRequest struct {

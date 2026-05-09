@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ajapro/chenile-go/core"
+	"core"
 )
 
 func TestNewWebAppCombinesMultipleModules(t *testing.T) {

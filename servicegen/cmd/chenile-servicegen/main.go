@@ -170,18 +170,18 @@ const goModTemplate = `module {{.ModuleName}}
 go 1.22
 
 require (
-	github.com/ajapro/chenile-go/core v0.0.0
-	github.com/ajapro/chenile-go/http v0.0.0
-	github.com/ajapro/chenile-go/packager v0.0.0
-	github.com/ajapro/chenile-go/test v0.0.0
+	core v0.0.0
+	http v0.0.0
+	packager v0.0.0
+	test v0.0.0
 )
 
-replace github.com/ajapro/chenile-go/base => {{.FrameworkRoot}}/base
-replace github.com/ajapro/chenile-go/core => {{.FrameworkRoot}}/core
-replace github.com/ajapro/chenile-go/http => {{.FrameworkRoot}}/http
-replace github.com/ajapro/chenile-go/owiz => {{.FrameworkRoot}}/owiz
-replace github.com/ajapro/chenile-go/packager => {{.FrameworkRoot}}/packager
-replace github.com/ajapro/chenile-go/test => {{.FrameworkRoot}}/test
+replace base => {{.FrameworkRoot}}/base
+replace core => {{.FrameworkRoot}}/core
+replace http => {{.FrameworkRoot}}/http
+replace owiz => {{.FrameworkRoot}}/owiz
+replace packager => {{.FrameworkRoot}}/packager
+replace test => {{.FrameworkRoot}}/test
 `
 
 const mainTemplate = `package main
@@ -189,7 +189,7 @@ const mainTemplate = `package main
 import (
 	"log"
 
-	"github.com/ajapro/chenile-go/packager"
+	"packager"
 
 	"{{.ModuleName}}/{{.Package}}"
 )
@@ -244,7 +244,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/ajapro/chenile-go/core"
+	"core"
 )
 
 func Register(registry *core.Registry) error {
@@ -304,7 +304,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/ajapro/chenile-go/core"
+	"core"
 )
 
 func TestRegisterAddsCreateOperation(t *testing.T) {
@@ -374,8 +374,8 @@ import (
 	"io"
 	"testing"
 
-	"github.com/ajapro/chenile-go/packager"
-	godogtest "github.com/ajapro/chenile-go/test/godog"
+	"packager"
+	godogtest "test/godog"
 
 	"{{.ModuleName}}/{{.Package}}"
 )

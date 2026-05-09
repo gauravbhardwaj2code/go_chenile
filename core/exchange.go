@@ -3,7 +3,7 @@ package core
 import (
 	"context"
 
-	"github.com/ajapro/chenile-go/base/response"
+	"base/response"
 )
 
 type Exchange struct {

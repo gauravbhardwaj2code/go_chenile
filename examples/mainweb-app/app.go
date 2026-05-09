@@ -1,7 +1,7 @@
 package mainweb
 
 import (
-	"github.com/ajapro/chenile-go/packager"
+	"packager"
 
 	"customer-service/customer"
 	"order-service/order"

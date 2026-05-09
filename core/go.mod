@@ -1,9 +1,11 @@
-module github.com/ajapro/chenile-go/core
+module core
 
 go 1.22
 
 require (
-	github.com/ajapro/chenile-go/base v0.0.0
-	github.com/ajapro/chenile-go/owiz v0.0.0
+base v0.0.0
+owiz v0.0.0
 )
 
+replace base => ../base
+replace owiz => ../owiz

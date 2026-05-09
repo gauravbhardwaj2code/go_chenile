@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ajapro/chenile-go/packager"
+	"packager"
 )
 
 func TestMainwebAppCombinesCustomerAndOrderServices(t *testing.T) {

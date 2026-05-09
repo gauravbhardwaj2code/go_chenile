@@ -22,7 +22,7 @@ func run(args []string, stdout io.Writer, stderr io.Writer) int {
 		fmt.Fprintf(stderr, "manifest %q not found: %v\n", *manifest, err)
 		return 1
 	}
-	fmt.Fprintf(stdout, "manifest %q exists; use github.com/ajapro/chenile-go/packager.NewWebApp(...) from a mainweb app to combine services\n", *manifest)
+	fmt.Fprintf(stdout, "manifest %q exists; use packager.NewWebApp(...) from a mainweb app to combine services\n", *manifest)
 	return 0
 }
 

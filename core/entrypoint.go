@@ -5,9 +5,9 @@ import (
 	"errors"
 	"net/http"
 
-	chenileerrors "github.com/ajapro/chenile-go/base/errors"
-	"github.com/ajapro/chenile-go/base/response"
-	"github.com/ajapro/chenile-go/owiz/chain"
+	chenileerrors "base/errors"
+	"base/response"
+	"owiz/chain"
 )
 
 type Interceptor interface {
