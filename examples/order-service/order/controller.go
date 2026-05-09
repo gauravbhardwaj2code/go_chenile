@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/ajapro/chenile-go/core"
+	"core"
 )
 
 func Register(registry *core.Registry) error {

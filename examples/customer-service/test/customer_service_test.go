@@ -4,8 +4,8 @@ import (
 	"io"
 	"testing"
 
-	"github.com/ajapro/chenile-go/packager"
-	godogtest "github.com/ajapro/chenile-go/test/godog"
+	"packager"
+	godogtest "test/godog"
 
 	"customer-service/customer"
 )

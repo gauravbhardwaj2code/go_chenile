@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/ajapro/chenile-go/core"
+	"core"
 )
 
 func TestRegisterAddsCreateOperation(t *testing.T) {

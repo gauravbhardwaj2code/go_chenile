@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"testing"
 
-	chenileerrors "github.com/ajapro/chenile-go/base/errors"
+	chenileerrors "base/errors"
 )
 
 type recordingInterceptor struct {

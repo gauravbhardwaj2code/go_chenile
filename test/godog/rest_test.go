@@ -8,8 +8,8 @@ import (
 
 	"github.com/cucumber/godog"
 
-	"github.com/ajapro/chenile-go/core"
-	chenilehttp "github.com/ajapro/chenile-go/http"
+	"core"
+	chenilehttp "http"
 )
 
 func TestSuiteRunsGodogFeature(t *testing.T) {

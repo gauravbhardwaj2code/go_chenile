@@ -1,4 +1,3 @@
-module github.com/ajapro/chenile-go/owiz
+module owiz
 
 go 1.22
-

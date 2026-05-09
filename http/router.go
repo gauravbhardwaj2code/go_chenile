@@ -5,8 +5,8 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/ajapro/chenile-go/base/response"
-	"github.com/ajapro/chenile-go/core"
+	"base/response"
+	"core"
 )
 
 type route struct {

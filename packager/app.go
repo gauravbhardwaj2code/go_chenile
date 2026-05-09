@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/ajapro/chenile-go/core"
-	chenilehttp "github.com/ajapro/chenile-go/http"
+	"core"
+	chenilehttp "http"
 )
 
 type Module struct {
