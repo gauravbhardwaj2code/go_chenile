@@ -3,12 +3,28 @@ module mainweb-app
 go 1.22
 
 require (
-core v0.0.0
-packager v0.0.0
+	customer-service v0.0.0
+	order-service v0.0.0
+	packager v0.0.0
 )
 
-replace core => ../../core
-replace packager => ../../packager
-replace http => ../../http
-replace base => ../../base
-replace owiz => ../../owiz
+require (
+	base v0.0.0 // indirect
+	core v0.0.0 // indirect
+	http v0.0.0 // indirect
+	owiz v0.0.0 // indirect
+)
+
+replace customer-service => ../customer-service
+
+replace order-service => ../order-service
+
+replace core => ../../chenile-framework/core
+
+replace packager => ../../chenile-framework/packager
+
+replace http => ../../chenile-framework/http
+
+replace base => ../../chenile-framework/base
+
+replace owiz => ../../chenile-framework/owiz

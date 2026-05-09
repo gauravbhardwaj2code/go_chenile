@@ -1,28 +1,73 @@
-# Go Ajapro
+# Chenile-Go Framework
 
-This repository is a Go prototype of the Chenile service framework shape.
+A modular microservices framework for Go, inspired by Chenile's architecture. Build scalable services with clean separation of concerns, BDD testing, and flexible deployment options.
 
-It keeps the MVC runtime small:
+## Quick Start
 
-```text
-app service
-  -> chenile-go-http
-      -> chenile-go-core
-          -> chenile-go-base
-          -> chenile-go-owiz
+### Prerequisites
+
+- Go 1.22 or later
+- Make (optional, for running tests via Makefile)
+
+### Run All Tests
+
+```bash
+# From the repository root
+make test
+
+# Or run tests manually for each module
+cd chenile-framework && for dir in base owiz core http test servicegen packager; do cd $dir && go test ./... && cd ..; done
+cd chenile-examples/customer-service && go test ./...
+cd chenile-examples/order-service && go test ./...
+cd chenile-examples/mainweb-app && go test ./...
 ```
 
-Developer tooling is separate:
+### Run a Standalone Service
 
-```text
-chenile-go-test       # Cucumber-style service tests
-chenile-go-servicegen # ready-to-use service skeleton generator
-chenile-go-packager   # packaging/manifest validation
+```bash
+# Customer service (serves /customers endpoint on port 8080)
+go run ./chenile-examples/customer-service/cmd/customer-service
+
+# Order service (serves /orders endpoint on port 8080)
+go run ./chenile-examples/order-service/cmd/order-service
 ```
 
-Framework modules use normal Go unit tests. Generated services use real Godog tests through `chenile-go-test/godog`, so service tests execute `.feature` files while still running with `go test`.
+Test the API:
+```bash
+curl -X POST http://localhost:8080/customers \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Alice"}'
+```
 
-The `.feature` files belong to Godog. They are not Java/Cucumber placeholders. They are executable Gherkin inputs read by `github.com/cucumber/godog` from tests such as `examples/customer-service/test/customer_service_test.go`.
+### Run the Combined Application
+
+```bash
+# Mainweb app (serves both /customers and /orders on port 8080)
+go run ./chenile-examples/mainweb-app/cmd/mainweb-app
+```
+
+### Create a New Service
+
+```bash
+# Generate a new service named "inventory" in the examples folder
+go run ./chenile-framework/servicegen/cmd/chenile-servicegen new --name inventory --out ./chenile-examples
+
+# Navigate to the generated service
+cd chenile-examples/inventory-service
+
+# Run tests
+go test ./...
+
+# Run the service
+go run ./cmd/inventory-service
+```
+
+The generator creates:
+- Complete service skeleton with model, service, and controller layers
+- Unit tests for service and controller
+- BDD feature files with Godog integration
+- Properly configured go.mod with framework dependencies
+- **No config folder** - configuration is done in code for type safety
 
 ## Java-to-Go Framework Choices
 
@@ -46,32 +91,54 @@ This project preserves Chenile's service-execution ideas, but it does not try to
 
 The main Java idea intentionally carried over is Chenile's architecture: service metadata, exchange, interceptor chain, HTTP adapter, generator, and packager. The implementation mechanisms are Go-native.
 
-## Standalone Service vs Packager
+## Standalone Service vs Multi-Service Application
 
-A generated service can run standalone. For example, `customer-service` starts its own web app with only the customer module:
+### Running a Single Service
 
-```bash
-go run ./examples/customer-service/cmd/customer-service
-```
-
-The packager is for the Spring Boot packager style: one main web application imports many service modules and exposes all their routes from one server.
-
-The example main web app combines `customer-service` and `order-service`:
+Each generated service can run independently:
 
 ```bash
-go run ./examples/mainweb-app/cmd/mainweb-app
+# Customer service (serves /customers endpoint)
+go run ./chenile-examples/customer-service/cmd/customer-service
+
+# Order service (serves /orders endpoint)  
+go run ./chenile-examples/order-service/cmd/order-service
 ```
 
-In code, the mainweb app is just explicit module composition:
+### Combining Multiple Services
+
+The packager allows you to combine multiple service modules into a single application:
+
+```bash
+# Mainweb app (serves both /customers and /orders)
+go run ./chenile-examples/mainweb-app/cmd/mainweb-app
+```
+
+The mainweb app explicitly composes modules:
 
 ```go
-app, err := packager.NewWebApp(
-    packager.Module{Name: "customer", Register: customer.Register},
-    packager.Module{Name: "order", Register: order.Register},
+// chenile-examples/mainweb-app/app.go
+package mainweb
+
+import (
+    "packager"
+    "customer-service/customer"
+    "order-service/order"
 )
+
+func NewApp() (*packager.App, error) {
+    return packager.NewWebApp(
+        packager.Module{Name: "customer", Register: customer.Register},
+        packager.Module{Name: "order", Register: order.Register},
+    )
+}
 ```
 
-This is intentionally not runtime classpath scanning. Go requires imported packages at compile time, so the packager/mainweb app imports the service modules it wants to include.
+**Key Points:**
+- No runtime classpath scanning - Go requires explicit imports at compile time
+- Each service module remains independent and testable in isolation
+- The packager aggregates all registered operations into a single router
+- One HTTP server handles requests for all combined services
 
 ## Dependency Management
 
@@ -91,9 +158,74 @@ make test
 
 ## Generate a Service
 
+Use the service generator to create a new service skeleton:
+
 ```bash
-go run ./servicegen/cmd/chenile-servicegen new --name customer --out ./examples
-cd examples/customer-service
-go test ./...
-go run ./cmd/customer-service
+# Basic usage - generates in current directory
+go run ./chenile-framework/servicegen/cmd/chenile-servicegen new --name inventory
+
+# Specify output directory
+go run ./chenile-framework/servicegen/cmd/chenile-servicegen new --name payment --out ./chenile-examples
+
+# Full example with framework root (for custom locations)
+go run ./chenile-framework/servicegen/cmd/chenile-servicegen new \
+  --name order \
+  --out ./chenile-examples \
+  --framework-root ../..
 ```
+
+### Generated Structure
+
+The generator creates a complete service with the following structure:
+
+```
+payment-service/
+├── cmd/
+│   └── payment-service/
+│       └── main.go              # Application entry point
+├── payment/
+│   ├── model.go                 # Request/response DTOs
+│   ├── service.go               # Business logic
+│   ├── controller.go            # Operation registration
+│   ├── module.go                # Package declaration
+│   ├── service_test.go          # Unit tests for service
+│   └── controller_test.go       # Unit tests for controller
+├── test/
+│   ├── payment_service_test.go  # Godog BDD test runner
+│   ├── features/
+│   │   └── payment.feature      # Gherkin feature file
+│   └── fixtures/
+│       └── create_payment.json  # Test fixtures
+└── go.mod                       # Module dependencies
+```
+
+**Important:** The generator does NOT create a config folder. Configuration is done explicitly in Go code for type safety and simpler deployment.
+
+### After Generation
+
+```bash
+# Navigate to your service
+cd chenile-examples/payment-service
+
+# Run unit tests
+go test ./payment/...
+
+# Run BDD tests
+go test ./test/...
+
+# Run the service
+go run ./cmd/payment-service
+
+# Access the API
+curl -X POST http://localhost:8080/payments \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Test Payment"}'
+```
+
+### Customizing Your Service
+
+1. **Edit `payment/model.go`**: Define your request/response structures
+2. **Edit `payment/service.go`**: Implement business logic
+3. **Edit `payment/controller.go`**: Add more operations/endpoints
+4. **Edit `test/features/payment.feature`**: Add BDD scenarios
+5. **Update `go.mod`**: Add external dependencies as needed

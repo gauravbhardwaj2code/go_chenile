@@ -14,11 +14,20 @@ This guide shows you how to create a new service module from scratch and run it.
 
 ## Step 1: Create Directory Structure
 
+**Recommended:** Use the service generator instead of manual creation:
+
 ```bash
-cd /workspace/examples
+cd /workspace
+go run ./chenile-framework/servicegen/cmd/chenile-servicegen new --name myservice --out ./chenile-examples
+cd chenile-examples/myservice-service
+```
+
+If creating manually:
+
+```bash
+cd /workspace/chenile-examples
 mkdir -p myservice/cmd/myservice
 mkdir -p myservice/item
-mkdir -p myservice/config
 mkdir -p myservice/test/features
 ```
 
@@ -31,40 +40,46 @@ myservice/
 ├── item/
 │   ├── controller.go
 │   ├── service.go
-│   └── model.go
-├── config/
-│   └── chenile.yaml
+│   ├── model.go
+│   └── module.go
 ├── test/
 │   └── features/
 └── go.mod
 ```
 
+**Note:** No config folder is needed. Configuration is done explicitly in code for type safety and simpler deployment.
+
 ---
 
 ## Step 2: Initialize Go Module
 
+If using the generator, this is done automatically. For manual creation:
+
 ```bash
-cd /workspace/examples/myservice
-go mod init myservice
+cd /workspace/chenile-examples/myservice
+go mod init myservice-service
 ```
 
 Edit `go.mod` to add framework dependencies:
 
 ```go
-module myservice
+module myservice-service
 
 go 1.22
 
 require (
     core v0.0.0
+    http v0.0.0
     packager v0.0.0
+    test v0.0.0
 )
 
-replace base => ../../base
-replace core => ../../core
-replace http => ../../http
-replace owiz => ../../owiz
-replace packager => ../../packager
+replace base => ../../chenile-framework/base
+replace core => ../../chenile-framework/core
+replace http => ../../chenile-framework/http
+replace owiz => ../../chenile-framework/owiz
+replace packager => ../../chenile-framework/packager
+replace test => ../../chenile-framework/test
 ```
 
 ---
@@ -206,7 +221,7 @@ import (
     "os"
 
     "packager"
-    "myservice/item"
+    "myservice-service/item"
 )
 
 func main() {
@@ -233,26 +248,10 @@ func main() {
 
 ---
 
-## Step 7: Add Configuration (`config/chenile.yaml`)
-
-```yaml
-service:
-  name: myservice
-  version: 1.0.0
-
-http:
-  port: 8080
-  
-logging:
-  level: info
-```
-
----
-
-## Step 8: Run Your Service
+## Step 7: Run Your Service
 
 ```bash
-cd /workspace/examples/myservice
+cd /workspace/chenile-examples/myservice-service
 go run ./cmd/myservice
 ```
 
@@ -261,9 +260,13 @@ You should see:
 2024/01/01 12:00:00 listening on :8080
 ```
 
+**Note:** Configuration is done in code, not YAML files. To change settings:
+- Port: Use `PORT` environment variable
+- Other config: Add to your service code or use environment variables
+
 ---
 
-## Step 9: Test Your API
+## Step 8: Test Your API
 
 Open another terminal and test the endpoints:
 
@@ -313,21 +316,40 @@ Expected response:
 
 ---
 
-## Step 10: Write Tests
+## Step 9: Write Tests
 
-Create `test/item_test.go`:
+Create `test/item_service_test.go`:
 
 ```go
 package test
 
 import (
+    "io"
     "testing"
-    
-    "test/godog"
+
+    "packager"
+    godogtest "test/godog"
+    "myservice-service/item"
 )
 
 func TestItemService(t *testing.T) {
-    godog.Run(t, "../features/item.feature")
+    app, err := packager.NewWebApp(
+        packager.Module{Name: "item", Register: item.Register},
+    )
+    if err != nil {
+        t.Fatal(err)
+    }
+
+    status := godogtest.Suite{
+        Name:         "item-service",
+        Router:       app.Router,
+        FeaturePaths: []string{"features/item.feature"},
+        TestingT:     t,
+        Output:       io.Discard,
+    }.Run()
+    if status != 0 {
+        t.Fatalf("godog suite failed with status %d", status)
+    }
 }
 ```
 
@@ -353,17 +375,17 @@ Feature: Item Service
 
 Run tests:
 ```bash
-cd /workspace/examples/myservice
+cd /workspace/chenile-examples/myservice-service
 go test ./test/... -v
 ```
 
 ---
 
-## Combining Multiple Modules
+## Step 10: Combining Multiple Modules
 
 To create an application with multiple service modules:
 
-### Create `examples/myapp/cmd/myapp/main.go`
+### Create `chenile-examples/myapp/cmd/myapp/main.go`
 
 ```go
 package main
@@ -372,7 +394,7 @@ import (
     "log"
 
     "packager"
-    "myservice/item"
+    "myservice-service/item"
     "customer-service/customer"  // Import other modules
 )
 
@@ -396,7 +418,32 @@ func main() {
 }
 ```
 
+**Important:** Update your `go.mod` to include all service modules:
+
+```go
+module myapp
+
+go 1.22
+
+require (
+    myservice-service v0.0.0
+    customer-service v0.0.0
+    packager v0.0.0
+)
+
+replace myservice-service => ../myservice-service
+replace customer-service => ../customer-service
+replace base => ../../chenile-framework/base
+replace core => ../../chenile-framework/core
+replace http => ../../chenile-framework/http
+replace owiz => ../../chenile-framework/owiz
+replace packager => ../../chenile-framework/packager
+replace test => ../../chenile-framework/test
+```
+
 Now both `/items` and `/customers` routes are served from the same application!
+
+See `chenile-examples/mainweb-app` for a working example combining customer and order services.
 
 ---
 
@@ -478,6 +525,8 @@ Verify your request struct has correct JSON tags matching the incoming payload.
 
 ## See Also
 
-- `/workspace/ARCHITECTURE_GUIDE.md` - Detailed framework architecture
-- `/workspace/examples/customer-service/` - Complete working example
-- `/workspace/README.md` - Project overview
+- `ARCHITECTURE_GUIDE.md` - Detailed framework architecture
+- `chenile-examples/customer-service/` - Complete working example
+- `chenile-examples/mainweb-app/` - Multi-service application example
+- `README.md` - Project overview
+- `AGENT_GUIDE.md` - Guide for AI agents working with this framework
