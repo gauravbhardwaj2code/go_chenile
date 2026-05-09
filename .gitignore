@@ -1,41 +1,39 @@
-# Logs and temp files
+```
+# Dependencies
+go.work
+go.sum
+
+# Build artifacts
+*.o
+*.obj
+*.a
+*.so
+*.dll
+*.exe
+*.out
+
+# Go specific
+vendor/
+*.mod
+*.sum
+
+# Logs
 *.log
 
-# Environment files
+# Environment
 .env
 .env.local
 *.env.*
 
-# Dependencies
-node_modules/
-venv/
-.venv/
-__pycache__/
-.mypy_cache/
-.pytest_cache/
-dist/
-build/
-target/
-.gradle/
-
 # Editors
 .vscode/
 .idea/
+*.swp
+*.swo
 
-# System files
+# OS
 .DS_Store
 Thumbs.db
-
-# Compiled files
-*.pyc
-*.class
-*.o
-*.exe
-*.dll
-*.so
-*.a
-*.obj
-*.out
 
 # Coverage
 coverage/
@@ -65,8 +63,4 @@ htmlcov/
 *.tar.bz2
 *.tar.xz
 *.tar.zst
-
-# Temp files
-*.tmp
-*.swp
-*.swo
+```

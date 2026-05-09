@@ -1,11 +1,11 @@
-go 1.22
+go 1.19
 
 use (
-./base
-./owiz
-./core
-./http
-./test
-./servicegen
-./packager
+	./base
+	./core
+	./http
+	./owiz
+	./packager
+	./servicegen
+	./test
 )

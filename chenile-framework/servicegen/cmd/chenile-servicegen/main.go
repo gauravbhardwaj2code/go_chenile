@@ -104,8 +104,6 @@ func generate(target string, d data) error {
 		d.Package + "/module.go":                      moduleTemplate,
 		d.Package + "/service_test.go":                serviceUnitTestTemplate,
 		d.Package + "/controller_test.go":             controllerUnitTestTemplate,
-		"config/chenile.yaml":                         configTemplate,
-		"config/services/" + d.Package + ".yaml":      serviceConfigTemplate,
 		"test/" + d.Package + "_service_test.go":      testTemplate,
 		"test/features/" + d.Package + ".feature":     featureTemplate,
 		"test/fixtures/create_" + d.Package + ".json": fixtureTemplate,
@@ -349,24 +347,6 @@ func TestRegisteredCreateHandlerInvokesService(t *testing.T) {
 }
 `
 
-const configTemplate = `module: {{.Package}}
-transport:
-  http: true
-features:
-  events: false
-  trajectories: false
-  stm: false
-  sql: false
-  mcp: false
-`
-
-const serviceConfigTemplate = `id: {{.ServiceID}}
-name: {{.ServiceID}}
-operations:
-  - name: create
-    method: POST
-    path: {{.RouteBase}}
-`
 
 const testTemplate = `package test
 
