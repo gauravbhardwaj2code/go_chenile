@@ -18,7 +18,7 @@ The framework is organized into distinct layers, each with specific responsibili
                     ↓
 ┌─────────────────────────────────────────┐
 │         Packager Layer                  │
-│    (github.com/ajapro/chenile-go/packager) │
+│    (packager) │
 │  - App Assembly                         │
 │  - Module Registration                  │
 │  - HTTP Server Bootstrap                │
@@ -26,7 +26,7 @@ The framework is organized into distinct layers, each with specific responsibili
                     ↓
 ┌─────────────────────────────────────────┐
 │         HTTP Layer                      │
-│    (github.com/ajapro/chenile-go/http)     │
+│    (http)     │
 │  - Router                               │
 │  - Request/Response Handling            │
 │  - Path Matching                        │
@@ -34,7 +34,7 @@ The framework is organized into distinct layers, each with specific responsibili
                     ↓
 ┌─────────────────────────────────────────┐
 │         Core Layer                      │
-│    (github.com/ajapro/chenile-go/core)     │
+│    (core)     │
 │  - Registry                             │
 │  - EntryPoint                           │
 │  - Exchange                             │
@@ -43,14 +43,14 @@ The framework is organized into distinct layers, each with specific responsibili
                     ↓
 ┌─────────────────────────────────────────┐
 │         Base Layer                      │
-│    (github.com/ajapro/chenile-go/base)     │
+│    (base)     │
 │  - Errors                               │
 │  - Response Types                       │
 └─────────────────────────────────────────┘
                     ↓
 ┌─────────────────────────────────────────┐
 │         O Wiz (Orchestration)           │
-│    (github.com/ajapro/chenile-go/owiz)     │
+│    (owiz)     │
 │  - Chain Execution                      │
 │  - Command Pattern                      │
 └─────────────────────────────────────────┘
@@ -58,7 +58,7 @@ The framework is organized into distinct layers, each with specific responsibili
 
 ## Module Descriptions
 
-### 1. Base Layer (`github.com/ajapro/chenile-go/base`)
+### 1. Base Layer (`base`)
 
 **Purpose**: Foundational types and utilities used across all layers.
 
@@ -89,7 +89,7 @@ type ChenileError struct {
 
 ---
 
-### 2. O Wiz Layer (`github.com/ajapro/chenile-go/owiz`)
+### 2. O Wiz Layer (`owiz`)
 
 **Purpose**: Orchestration utilities for command chain execution.
 
@@ -115,7 +115,7 @@ type Command[T any] interface {
 
 ---
 
-### 3. Core Layer (`github.com/ajapro/chenile-go/core`)
+### 3. Core Layer (`core`)
 
 **Purpose**: Framework kernel - service registration, operation routing, execution engine.
 
@@ -191,7 +191,7 @@ type Interceptor interface {
 
 ---
 
-### 4. HTTP Layer (`github.com/ajapro/chenile-go/http`)
+### 4. HTTP Layer (`http`)
 
 **Purpose**: HTTP server implementation, routing, request/response translation.
 
@@ -218,7 +218,7 @@ func (r *Router) ServeHTTP(writer http.ResponseWriter, request *http.Request)
 
 ---
 
-### 5. Packager Layer (`github.com/ajapro/chenile-go/packager`)
+### 5. Packager Layer (`packager`)
 
 **Purpose**: Application assembler - brings modules together into runnable apps.
 
@@ -326,7 +326,7 @@ import (
     "context"
     "net/http"
 
-    "github.com/ajapro/chenile-go/core"
+    "core"
 )
 
 func Register(registry *core.Registry) error {
@@ -373,7 +373,7 @@ package main
 import (
     "log"
 
-    "github.com/ajapro/chenile-go/packager"
+    "packager"
     "my-service/mydomain"
 )
 
@@ -401,15 +401,15 @@ module my-service
 go 1.22
 
 require (
-    github.com/ajapro/chenile-go/core v0.0.0
-    github.com/ajapro/chenile-go/packager v0.0.0
+    core v0.0.0
+    packager v0.0.0
 )
 
-replace github.com/ajapro/chenile-go/base => ../../base
-replace github.com/ajapro/chenile-go/core => ../../core
-replace github.com/ajapro/chenile-go/http => ../../http
-replace github.com/ajapro/chenile-go/owiz => ../../owiz
-replace github.com/ajapro/chenile-go/packager => ../../packager
+replace base => ../../base
+replace core => ../../core
+replace http => ../../http
+replace owiz => ../../owiz
+replace packager => ../../packager
 ```
 
 ---

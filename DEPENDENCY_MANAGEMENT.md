@@ -6,31 +6,31 @@ The Go prototype uses a different mechanism:
 
 1. `go.work` is the workspace-level module list.
 2. Each framework component has its own `go.mod`.
-3. Internal framework dependencies use stable module paths such as `github.com/ajapro/chenile-go/core`.
+3. Internal framework dependencies use stable module paths such as `core`, `base`, `http`, etc.
 4. During local development, generated services use `replace` directives to point those module paths back to local workspace modules.
 5. `Makefile` centralizes the test command across all modules.
 
 ## Runtime Dependency Graph
 
 ```text
-chenile-go-http
-  -> chenile-go-core
-      -> chenile-go-base
-      -> chenile-go-owiz
+http
+  -> core
+      -> base
+      -> owiz
 ```
 
 ## Developer Tooling Graph
 
 ```text
-chenile-go-test
-  -> chenile-go-http
+test
+  -> http
   -> github.com/cucumber/godog
 
-chenile-go-packager
-  -> chenile-go-core
-  -> chenile-go-http
+packager
+  -> core
+  -> http
 
-chenile-go-servicegen
+servicegen
   -> standard library only
 ```
 
@@ -40,16 +40,16 @@ Generated services receive a `go.mod` like this:
 
 ```text
 require (
-  github.com/ajapro/chenile-go/core v0.0.0
-  github.com/ajapro/chenile-go/http v0.0.0
-  github.com/ajapro/chenile-go/packager v0.0.0
-  github.com/ajapro/chenile-go/test v0.0.0
+  core v0.0.0
+  http v0.0.0
+  packager v0.0.0
+  test v0.0.0
 )
 
-replace github.com/ajapro/chenile-go/core => ../../core
-replace github.com/ajapro/chenile-go/http => ../../http
-replace github.com/ajapro/chenile-go/packager => ../../packager
-replace github.com/ajapro/chenile-go/test => ../../test
+replace core => ../../core
+replace http => ../../http
+replace packager => ../../packager
+replace test => ../../test
 ```
 
 That gives new developers a service that can be tested locally before framework modules are published.

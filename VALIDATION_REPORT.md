@@ -120,19 +120,19 @@ use (
 
 ### User Concern Addressed
 
-**Question**: "Why does `github.com/ajapro/chenile-go/` append as prefix?"
+**Question**: "Why does the module prefix appear in imports?"
 
 **Answer**: This is standard Go module naming convention.
 
-- **Module Path**: `github.com/ajapro/chenile-go/base`
-- **Import Statement**: `import "github.com/ajapro/chenile-go/base/response"`
+- **Module Path**: `base`
+- **Import Statement**: `import "base/response"`
 - **Local Development**: `replace` directives map to local paths
 
 This is NOT a bug - it's how Go modules work:
-- External users: `go get github.com/ajapro/chenile-go/base@v0.0.0`
-- Local development: `replace github.com/ajapro/chenile-go/base => ../../base`
+- External users: `go get base@v0.0.0`
+- Local development: `replace base => ../../base`
 
-The `github.com/ajapro/chenile-go/` prefix ensures:
+The module names ensure:
 1. Global uniqueness of module names
 2. Proper versioning when published
 3. Clear ownership attribution
@@ -141,17 +141,17 @@ The `github.com/ajapro/chenile-go/` prefix ensures:
 
 Framework modules (internal):
 ```go
-import "github.com/ajapro/chenile-go/core"
-import "github.com/ajapro/chenile-go/base/response"
+import "core"
+import "base/response"
 ```
 
 Service modules (external):
 ```go
 module my-service
 
-require github.com/ajapro/chenile-go/core v0.0.0
+require core v0.0.0
 
-replace github.com/ajapro/chenile-go/core => ../chenile-go/core
+replace core => ../core
 ```
 
 ---
@@ -227,12 +227,12 @@ All critical functionality is working. No blocking issues found.
 
 ```
 === Framework Module Tests ===
-ok  github.com/ajapro/chenile-go/base/errors        0.002s
-ok  github.com/ajapro/chenile-go/base/response      0.015s
-ok  github.com/ajapro/chenile-go/core               0.004s
-ok  github.com/ajapro/chenile-go/http               0.006s
-ok  github.com/ajapro/chenile-go/packager           0.017s
-ok  github.com/ajapro/chenile-go/owiz/chain         0.002s
+ok  base/errors        0.002s
+ok  base/response      0.015s
+ok  core               0.004s
+ok  http               0.006s
+ok  packager           0.017s
+ok  owiz/chain         0.002s
 
 === Example Service Tests ===
 ok  customer-service/customer                       0.018s

@@ -56,15 +56,15 @@ module myservice
 go 1.22
 
 require (
-    github.com/ajapro/chenile-go/core v0.0.0
-    github.com/ajapro/chenile-go/packager v0.0.0
+    core v0.0.0
+    packager v0.0.0
 )
 
-replace github.com/ajapro/chenile-go/base => ../../base
-replace github.com/ajapro/chenile-go/core => ../../core
-replace github.com/ajapro/chenile-go/http => ../../http
-replace github.com/ajapro/chenile-go/owiz => ../../owiz
-replace github.com/ajapro/chenile-go/packager => ../../packager
+replace base => ../../base
+replace core => ../../core
+replace http => ../../http
+replace owiz => ../../owiz
+replace packager => ../../packager
 ```
 
 ---
@@ -148,7 +148,7 @@ import (
     "context"
     "net/http"
 
-    "github.com/ajapro/chenile-go/core"
+    "core"
 )
 
 func Register(registry *core.Registry) error {
@@ -205,7 +205,7 @@ import (
     "log"
     "os"
 
-    "github.com/ajapro/chenile-go/packager"
+    "packager"
     "myservice/item"
 )
 
@@ -323,7 +323,7 @@ package test
 import (
     "testing"
     
-    "github.com/ajapro/chenile-go/test/godog"
+    "test/godog"
 )
 
 func TestItemService(t *testing.T) {
@@ -371,7 +371,7 @@ package main
 import (
     "log"
 
-    "github.com/ajapro/chenile-go/packager"
+    "packager"
     "myservice/item"
     "customer-service/customer"  // Import other modules
 )
@@ -438,7 +438,7 @@ entryPoint := core.NewEntryPoint(registry, &LoggingInterceptor{})
 ### Error Handling
 
 ```go
-import chenileerrors "github.com/ajapro/chenile-go/base/errors"
+import chenileerrors "base/errors"
 
 func (s *Service) Get(ctx context.Context, id string) (*ItemResponse, error) {
     if id == "" {
