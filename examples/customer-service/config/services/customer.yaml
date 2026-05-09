@@ -1,0 +1,7 @@
+id: customerService
+name: customerService
+operations:
+  - name: create
+    method: POST
+    path: /customers
+

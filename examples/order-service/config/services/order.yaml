@@ -1,0 +1,7 @@
+id: orderService
+name: orderService
+operations:
+  - name: create
+    method: POST
+    path: /orders
+

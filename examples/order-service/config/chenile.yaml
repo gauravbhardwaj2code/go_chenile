@@ -1,0 +1,10 @@
+module: order
+transport:
+  http: true
+features:
+  events: false
+  trajectories: false
+  stm: false
+  sql: false
+  mcp: false
+
