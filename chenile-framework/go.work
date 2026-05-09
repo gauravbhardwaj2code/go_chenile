@@ -1,0 +1,11 @@
+go 1.22
+
+use (
+./base
+./owiz
+./core
+./http
+./test
+./servicegen
+./packager
+)

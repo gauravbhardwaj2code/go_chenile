@@ -1,35 +1,22 @@
 ```
-# Go build artifacts
-*.o
-*.a
-*.so
+# Go binaries
 *.exe
 *.dll
-*.dylib
+*.so
+*.a
+*.obj
+*.o
+*.out
+
+# Go build artifacts
 *.test
+*.prof
 
-# Go cache and modules
-go.mod
-go.sum
-vendor/
-*.mod
-*.sum
-
-# Build directories
-bin/
-pkg/
-target/
+# Go workspace
+go.work.sum
 
 # Dependencies
-node_modules/
-**/vendor/
-
-# IDE and editor files
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
+vendor/
 
 # Logs
 *.log
@@ -39,28 +26,30 @@ node_modules/
 .env.local
 *.env.*
 
-# Test coverage
-coverage.txt
-cover.out
-*.prof
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
 
-# Temporary files
-*.tmp
-*.temp
+# OS
 .DS_Store
 Thumbs.db
 
-# Cache directories
-.cache/
+# Coverage
+.coverage
+coverage/
+htmlcov/
+
+# Build directories (if any)
+dist/
+build/
+target/
+
+# Python artifacts (if any)
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-
-# Distribution / packaging
-*.tar.gz
-*.zip
-*.tar
-*.gz
-dist/
+.Python
 ```
