@@ -7,7 +7,7 @@ This guide is for AI agents working with the Chenile-Go framework. It provides e
 ### Repository Structure
 
 ```
-/workspace/
+<repo-root>/
 ├── chenile-framework/          # Core framework modules
 │   ├── base/                   # Foundation types (errors, responses)
 │   ├── core/                   # Registry, Exchange, EntryPoint
@@ -210,17 +210,12 @@ Feature: <Entity> service
 **No YAML configuration files are used.** The framework uses:
 
 1. **Explicit code configuration** - All settings in Go code
-2. **Environment variables** - For runtime configuration (e.g., PORT)
-3. **Constructor parameters** - For dependency injection
+2. **Constructor parameters** - For dependency injection
+3. **Normal Go code in `main.go`** - For runtime choices such as listen address
 
 Example:
 ```go
-// Port configuration via environment variable
-port := os.Getenv("PORT")
-if port == "" {
-    port = ":8080"
-}
-app.ListenAndServe(port)
+log.Fatal(app.ListenAndServe(":8080"))
 ```
 
 This approach provides:
@@ -260,23 +255,25 @@ func NewApp() (*packager.App, error) {
 3. Register operation in `<package>/controller.go`:
    ```go
    {
-       Name:   "getById",
-       Method: http.MethodGet,
-       Path:   "/entities/{id}",
-       NewInput: func() any { return &GetRequest{} },
+       Name:   "create",
+       Method: http.MethodPost,
+       Path:   "/entities",
+       NewInput: func() any { return &CreateRequest{} },
        Handler: func(ctx context.Context, exchange *core.Exchange) (any, error) {
-           // Access path params: exchange.PathParams["id"]
-           return service.Get(ctx, exchange.PathParams["id"])
+           request := exchange.Input.(*CreateRequest)
+           return service.Create(ctx, *request)
        },
    }
    ```
+
+The current router matches exact method/path pairs. Do not document or rely on `/entities/{id}` path templates unless route-template matching is implemented first.
 
 ### Adding Validation
 
 ```go
 func (s *service) Create(ctx context.Context, req CreateRequest) (Response, error) {
     if req.Name == "" {
-        return nil, chenileerrors.NewValidationError("name is required")
+        return Response{}, chenileerrors.New(http.StatusBadRequest, 0, "name is required")
     }
     // ... rest of logic
 }
@@ -308,14 +305,9 @@ Use framework error types from `base/errors`:
 ```go
 import chenileerrors "base/errors"
 
-// Not found
-return nil, chenileerrors.NewNotFoundError("entity not found")
-
-// Validation error
-return nil, chenileerrors.NewValidationError("invalid input")
-
-// Internal error
-return nil, chenileerrors.NewInternalError("database error")
+return Response{}, chenileerrors.New(http.StatusNotFound, 0, "entity not found")
+return Response{}, chenileerrors.New(http.StatusBadRequest, 0, "invalid input")
+return Response{}, chenileerrors.New(http.StatusInternalServerError, 0, "database error")
 ```
 
 ## Naming Conventions
@@ -324,7 +316,7 @@ return nil, chenileerrors.NewInternalError("database error")
 |---------|-----------|---------|
 | Service name | kebab-case | `customer-service` |
 | Package name | lowercase, no hyphens | `customer` |
-| Service ID | PascalCase + "Service" | `customerService` |
+| Service ID | package name + "Service" | `customerService` |
 | Route base | plural, kebab-case | `/customers` |
 | Model structs | PascalCase | `CreateCustomerRequest`, `Customer` |
 | Files | snake_case | `model.go`, `service.go`, `controller.go` |
@@ -348,8 +340,8 @@ When something doesn't work, check:
 
 1. **Module not found**: Verify `replace` directives in `go.mod` point to correct paths
 2. **Operation not found**: Check service ID and operation name match exactly
-3. **Port in use**: Set `PORT` environment variable to different value
-4. **Path params not extracted**: Access via `exchange.PathParams["key"]`
+3. **Port in use**: Stop the other process or edit `main.go` to use a different address
+4. **Path params not extracted**: The router currently matches exact paths only
 5. **JSON unmarshaling**: Verify JSON tags on request struct match payload
 6. **Import cycle**: Services should not import each other directly
 

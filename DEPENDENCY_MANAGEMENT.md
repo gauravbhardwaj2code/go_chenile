@@ -46,10 +46,12 @@ require (
   test v0.0.0
 )
 
-replace core => ../../core
-replace http => ../../http
-replace packager => ../../packager
-replace test => ../../test
+replace core => ../../chenile-framework/core
+replace base => ../../chenile-framework/base
+replace http => ../../chenile-framework/http
+replace owiz => ../../chenile-framework/owiz
+replace packager => ../../chenile-framework/packager
+replace test => ../../chenile-framework/test
 ```
 
 That gives new developers a service that can be tested locally before framework modules are published.

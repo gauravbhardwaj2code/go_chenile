@@ -36,7 +36,7 @@ func run(args []string, stdout io.Writer, stderr io.Writer) int {
 	flags.SetOutput(stderr)
 	name := flags.String("name", "", "service name")
 	out := flags.String("out", ".", "output directory")
-	frameworkRoot := flags.String("framework-root", "../..", "relative path from generated service to the framework root")
+	frameworkRoot := flags.String("framework-root", "../../chenile-framework", "relative path from generated service to the framework root")
 	if err := flags.Parse(args[1:]); err != nil {
 		return 2
 	}
@@ -346,7 +346,6 @@ func TestRegisteredCreateHandlerInvokesService(t *testing.T) {
 	}
 }
 `
-
 
 const testTemplate = `package test
 

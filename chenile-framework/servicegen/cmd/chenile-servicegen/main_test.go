@@ -100,6 +100,40 @@ func TestRunGeneratesServiceAndUpdatesWorkspace(t *testing.T) {
 	}
 }
 
+func TestRunUsesRepositoryDefaultFrameworkRoot(t *testing.T) {
+	root := t.TempDir()
+	framework := filepath.Join(root, "chenile-framework")
+	if err := os.MkdirAll(framework, 0755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(framework, "go.work"), []byte("go 1.22\n\nuse (\n\t./base\n)\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	out := filepath.Join(root, "chenile-examples")
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+
+	code := run([]string{"new", "--name", "invoice", "--out", out}, &stdout, &stderr)
+
+	if code != 0 {
+		t.Fatalf("expected exit code 0, got %d; stderr=%s", code, stderr.String())
+	}
+	content, err := os.ReadFile(filepath.Join(out, "invoice-service", "go.mod"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(content), "replace core => ../../chenile-framework/core") {
+		t.Fatalf("expected repository-relative framework replace, got:\n%s", string(content))
+	}
+	workContent, err := os.ReadFile(filepath.Join(framework, "go.work"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(workContent), "../chenile-examples/invoice-service") {
+		t.Fatalf("expected generated service in framework go.work, got:\n%s", string(workContent))
+	}
+}
+
 func TestRunRequiresName(t *testing.T) {
 	var stdout bytes.Buffer
 	var stderr bytes.Buffer

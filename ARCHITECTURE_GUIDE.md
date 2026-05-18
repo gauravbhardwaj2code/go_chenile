@@ -11,7 +11,7 @@ The framework is organized into distinct layers, each with specific responsibili
 ```
 ┌─────────────────────────────────────────┐
 │         Application Layer               │
-│    (examples/customer-service)          │
+│    (chenile-examples/customer-service)  │
 │  - Service Modules (customer, order)    │
 │  - Main Entry Point                     │
 └─────────────────────────────────────────┘
@@ -256,63 +256,71 @@ func (a *App) ListenAndServe(address string) error
 
 ### Step 1: Module Structure
 
-Create a new module directory following this structure:
+Prefer the generator:
+
+```bash
+go run ./chenile-framework/servicegen/cmd/chenile-servicegen new --name myservice --out ./chenile-examples
+```
+
+It creates this structure:
 
 ```
-my-service/
+myservice-service/
 ├── cmd/
-│   └── my-service/
+│   └── myservice-service/
 │       └── main.go
-├── config/
-│   └── chenile.yaml
-├── mydomain/
+├── myservice/
 │   ├── controller.go    # Registry and operations
+│   ├── controller_test.go
 │   ├── service.go       # Business logic
+│   ├── service_test.go
 │   ├── model.go         # Data structures
 │   └── module.go        # Package declaration
 ├── go.mod
 └── test/
-    └── features/
+    ├── myservice_service_test.go
+    ├── features/
+    └── fixtures/
 ```
+
+There is no config directory; configuration is explicit Go code.
 
 ### Step 2: Define Models (`model.go`)
 
 ```go
-package mydomain
+package myservice
 
 type CreateItemRequest struct {
-    Name  string `json:"name"`
-    Email string `json:"email"`
+    Name string `json:"name"`
 }
 
-type ItemResponse struct {
-    ID    string `json:"id"`
-    Name  string `json:"name"`
-    Email string `json:"email"`
+type Item struct {
+    ID   string `json:"id"`
+    Name string `json:"name"`
 }
 ```
 
 ### Step 3: Implement Service Logic (`service.go`)
 
 ```go
-package mydomain
+package myservice
 
 import "context"
 
-type Service struct {
-    // Dependencies here
+type Service interface {
+    Create(context.Context, CreateItemRequest) (Item, error)
 }
 
-func NewService() *Service {
-    return &Service{}
+type service struct{}
+
+func NewService() Service {
+    return service{}
 }
 
-func (s *Service) Create(ctx context.Context, req CreateItemRequest) (*ItemResponse, error) {
-    // Business logic here
-    return &ItemResponse{
-        ID:    "123",
-        Name:  req.Name,
-        Email: req.Email,
+func (service) Create(ctx context.Context, req CreateItemRequest) (Item, error) {
+    return Item{
+        ID:   "item-1",
+        Name: req.Name,
     }, nil
 }
 ```
@@ -320,7 +328,7 @@ func (s *Service) Create(ctx context.Context, req CreateItemRequest) (*ItemRespo
 ### Step 4: Register Operations (`controller.go`)
 
 ```go
-package mydomain
+package myservice
 
 import (
     "context"
@@ -333,37 +341,25 @@ func Register(registry *core.Registry) error {
     service := NewService()
     
     return registry.RegisterService(core.ServiceDefinition{
-        ID:   "myService",
-        Name: "myService",
-        Operations: []core.OperationDefinition{
-            {
-                Name:   "create",
-                Method: http.MethodPost,
-                Path:   "/items",
-                NewInput: func() any {
-                    return &CreateItemRequest{}
-                },
-                Handler: func(ctx context.Context, exchange *core.Exchange) (any, error) {
-                    request := exchange.Input.(*CreateItemRequest)
-                    return service.Create(ctx, *request)
-                },
+        ID:   "myserviceService",
+        Name: "myserviceService",
+        Operations: []core.OperationDefinition{{
+            Name:   "create",
+            Method: http.MethodPost,
+            Path:   "/myservices",
+            NewInput: func() any {
+                return &CreateItemRequest{}
             },
-            {
-                Name:   "get",
-                Method: http.MethodGet,
-                Path:   "/items/{id}",
-                NewInput: func() any {
-                    return &GetItemRequest{}
-                },
-                Handler: func(ctx context.Context, exchange *core.Exchange) (any, error) {
-                    // Access path params via exchange.PathParams["id"]
-                    return service.Get(ctx, exchange.PathParams["id"])
-                },
+            Handler: func(ctx context.Context, exchange *core.Exchange) (any, error) {
+                request := exchange.Input.(*CreateItemRequest)
+                return service.Create(ctx, *request)
             },
-        },
+        }},
     })
 }
 ```
+
+The HTTP router currently matches exact method/path pairs. Template routes such as `/items/{id}` and automatic path parameter extraction are not implemented yet.
 
 ### Step 5: Create Main Entry Point (`cmd/my-service/main.go`)
 
@@ -374,14 +370,14 @@ import (
     "log"
 
     "packager"
-    "my-service/mydomain"
+    "myservice-service/myservice"
 )
 
 func main() {
     app, err := packager.NewWebApp(
         packager.Module{
-            Name:     "mydomain",
-            Register: mydomain.Register,
+            Name:     "myservice",
+            Register: myservice.Register,
         },
     )
     if err != nil {
@@ -396,20 +392,23 @@ func main() {
 ### Step 6: Configure Module Dependencies (`go.mod`)
 
 ```go
-module my-service
+module myservice-service
 
 go 1.22
 
 require (
     core v0.0.0
+    http v0.0.0
     packager v0.0.0
+    test v0.0.0
 )
 
-replace base => ../../base
-replace core => ../../core
-replace http => ../../http
-replace owiz => ../../owiz
-replace packager => ../../packager
+replace base => ../../chenile-framework/base
+replace core => ../../chenile-framework/core
+replace http => ../../chenile-framework/http
+replace owiz => ../../chenile-framework/owiz
+replace packager => ../../chenile-framework/packager
+replace test => ../../chenile-framework/test
 ```
 
 ---
@@ -504,26 +503,25 @@ Each module is self-contained with its own models, services, and controllers, bu
 
 ## Example: Complete Working Module
 
-See `/workspace/examples/customer-service/` for a complete working example including:
+See `chenile-examples/customer-service/` for a complete working example including:
 - Models (`customer/model.go`)
 - Service layer (`customer/service.go`)
 - Controller/Registry (`customer/controller.go`)
 - Tests (`customer/controller_test.go`, `test/features/`)
-- Configuration (`config/chenile.yaml`)
 - Main entry point (`cmd/customer-service/main.go`)
 
 ---
 
 ## Development Workflow
 
-1. **Create module directory**: `mkdir -p my-service/mydomain`
-2. **Initialize go.mod**: `cd my-service && go mod init my-service`
-3. **Add framework dependencies**: Edit go.mod with requires and replaces
+1. **Generate module**: `go run ./chenile-framework/servicegen/cmd/chenile-servicegen new --name myservice --out ./chenile-examples`
+2. **Run generated tests**: `cd chenile-examples/myservice-service && go test ./...`
+3. **Adjust dependencies**: Edit go.mod if external packages are needed
 4. **Define models**: Create request/response structs
 5. **Implement service**: Business logic without framework dependencies
 6. **Create controller**: Register operations with registry
 7. **Write main.go**: Assemble modules with packager
-8. **Run**: `go run ./cmd/my-service`
+8. **Run**: `go run ./cmd/myservice-service`
 9. **Test**: Write godog BDD tests in `test/features/`
 
 ---
@@ -537,17 +535,10 @@ See `/workspace/examples/customer-service/` for a complete working example inclu
 **Solution**: Verify the service ID and operation name match exactly in registry and request.
 
 ### Issue: Port already in use
-**Solution**: Make port configurable via environment variable:
-```go
-port := os.Getenv("PORT")
-if port == "" {
-    port = ":8080"
-}
-app.ListenAndServe(port)
-```
+**Solution**: Stop the other process or edit the service `main.go` to listen on a different address.
 
 ### Issue: Path parameters not extracted
-**Solution**: Currently path parameters need manual extraction. Add middleware to parse path template and populate `exchange.PathParams`.
+**Solution**: The current router uses exact path matching only. Register exact paths, or implement route-template matching before using `exchange.PathParams`.
 
 ---
 
