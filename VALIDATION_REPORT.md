@@ -68,6 +68,15 @@ The examples demonstrate both standalone services and a combined app:
 - `chenile-examples/order-service`
 - `chenile-examples/mainweb-app`
 
+## Swagger/OpenAPI
+
+Every router exposes:
+
+- `GET /openapi.json`: OpenAPI 3.0.3 document generated from registered operations
+- `GET /swagger`: Swagger UI pointing at `/openapi.json`
+
+The OpenAPI document includes operation IDs, tags, JSON request body schemas derived from `NewInput()`, and the standardized generic JSON response shape.
+
 ## Current Constraints
 
 - The HTTP router matches exact method/path pairs. Route templates such as `/items/{id}` and automatic `PathParams` extraction are not implemented.

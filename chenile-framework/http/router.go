@@ -18,6 +18,7 @@ type route struct {
 type Router struct {
 	entryPoint *core.EntryPoint
 	routes     map[string]route
+	openAPI    openAPIDocument
 }
 
 func NewRouter(entryPoint *core.EntryPoint) *Router {
@@ -28,6 +29,7 @@ func NewRouter(entryPoint *core.EntryPoint) *Router {
 }
 
 func (r *Router) MountRegistry(registry *core.Registry) error {
+	r.openAPI = buildOpenAPIDocument(registry)
 	for _, registered := range registry.Operations() {
 		key := routeKey(registered.Operation.Method, registered.Operation.Path)
 		r.routes[key] = route{
@@ -40,6 +42,14 @@ func (r *Router) MountRegistry(registry *core.Registry) error {
 }
 
 func (r *Router) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
+	if request.Method == http.MethodGet && request.URL.Path == "/openapi.json" {
+		writeJSON(writer, r.openAPI)
+		return
+	}
+	if request.Method == http.MethodGet && request.URL.Path == "/swagger" {
+		writeSwaggerUI(writer)
+		return
+	}
 	route, ok := r.routes[routeKey(request.Method, request.URL.Path)]
 	if !ok {
 		writeResponse(writer, response.Failure(http.StatusNotFound, "route not found", 0))

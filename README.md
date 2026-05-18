@@ -114,6 +114,18 @@ curl -X POST http://localhost:8080/orders \
   -d '{"name":"Order 1"}'
 ```
 
+Swagger/OpenAPI is available on every running service and combined app:
+
+```bash
+curl http://localhost:8080/openapi.json
+```
+
+Open the Swagger UI in a browser:
+
+```text
+http://localhost:8080/swagger
+```
+
 The combined app is assembled in `chenile-examples/mainweb-app/app.go`:
 
 ```go
@@ -174,6 +186,7 @@ service modules
 | Spring DI | constructors and explicit module registration | `NewService()`, `Register(...)` |
 | Cucumber JVM | Godog | `chenile-framework/test/godog`, `*.feature` files |
 | Spring MockMvc | `net/http/httptest` in Godog utilities | `chenile-framework/test/godog/rest.go` |
+| OpenAPI / Swagger | generated OpenAPI JSON and Swagger UI | `/openapi.json`, `/swagger` |
 
 ## More Documentation
 
