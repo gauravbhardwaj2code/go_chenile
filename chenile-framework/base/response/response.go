@@ -13,6 +13,7 @@ type ResponseMessage struct {
 	Description  string    `json:"description,omitempty"`
 	Code         int       `json:"code,omitempty"`
 	SubErrorCode int       `json:"subErrorCode,omitempty"`
+	MessageKey   string    `json:"messageKey,omitempty"`
 	Severity     ErrorType `json:"severity,omitempty"`
 	Field        string    `json:"field,omitempty"`
 	Params       []any     `json:"params,omitempty"`

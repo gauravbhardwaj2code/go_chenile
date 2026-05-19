@@ -7,19 +7,19 @@ import (
 	godogtest "bdd-utils/godog"
 	"packager"
 
-	"customer-service/customer"
+	"state-order-service/order"
 )
 
-func TestCreateCustomer(t *testing.T) {
-	app, err := packager.NewWebApp(packager.Module{Name: "customer", Register: customer.Register})
+func TestStateOrderWorkflow(t *testing.T) {
+	app, err := packager.NewWebApp(packager.Module{Name: "state-order", Register: order.Register})
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	status := godogtest.Suite{
-		Name:         "customer-service",
+		Name:         "state-order-service",
 		Router:       app.Router,
-		FeaturePaths: []string{"features/customer.feature"},
+		FeaturePaths: []string{"features/state_order.feature"},
 		TestingT:     t,
 		Output:       io.Discard,
 	}.Run()

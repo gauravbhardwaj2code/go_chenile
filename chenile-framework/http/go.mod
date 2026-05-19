@@ -1,6 +1,8 @@
 module http
 
-go 1.22
+go 1.26
+
+toolchain go1.26.3
 
 require (
 	base v0.0.0
@@ -8,4 +10,5 @@ require (
 )
 
 replace base => ../base
+
 replace core => ../core

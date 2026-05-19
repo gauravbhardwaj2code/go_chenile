@@ -1,15 +1,17 @@
 module customer-service
 
-go 1.22
+go 1.26
+
+toolchain go1.26.3
 
 require (
 	core v0.0.0
 	packager v0.0.0
-	test v0.0.0
 )
 
 require (
 	base v0.0.0 // indirect
+	bdd-utils v0.0.0
 	github.com/cucumber/gherkin/go/v26 v26.2.0 // indirect
 	github.com/cucumber/godog v0.15.1 // indirect
 	github.com/cucumber/messages/go/v21 v21.0.1 // indirect
@@ -26,10 +28,10 @@ replace core => ../../chenile-framework/core
 
 replace packager => ../../chenile-framework/packager
 
-replace test => ../../chenile-framework/test
-
 replace http => ../../chenile-framework/http
 
 replace base => ../../chenile-framework/base
 
 replace owiz => ../../chenile-framework/owiz
+
+replace bdd-utils => ../../chenile-framework/bdd-utils

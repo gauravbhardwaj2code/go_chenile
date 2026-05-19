@@ -42,16 +42,18 @@ Generated services receive a `go.mod` like this:
 require (
   core v0.0.0
   http v0.0.0
+  bdd-utils v0.0.0
+  config v0.0.0
   packager v0.0.0
-  test v0.0.0
 )
 
+replace bdd-utils => ../../chenile-framework/bdd-utils
 replace core => ../../chenile-framework/core
 replace base => ../../chenile-framework/base
+replace config => ../../chenile-framework/config
 replace http => ../../chenile-framework/http
 replace owiz => ../../chenile-framework/owiz
 replace packager => ../../chenile-framework/packager
-replace test => ../../chenile-framework/test
 ```
 
 That gives new developers a service that can be tested locally before framework modules are published.

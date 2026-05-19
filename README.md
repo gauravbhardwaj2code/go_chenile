@@ -1,6 +1,6 @@
 # Chenile-Go Framework
 
-Chenile-Go is a modular microservices framework for Go, inspired by Chenile's service architecture. It demonstrates explicit service registration, a shared HTTP adapter, standardized responses, service generation, module packaging, and Godog-based BDD tests.
+Chenile-Go is a modular microservices framework for Go, inspired by Chenile's service architecture. It now combines the cleaner explicit service model from the original Go prototype with the important WeGO framework capabilities: structured errors, config loading, middleware/interceptors, state machines, state-entity services, service generation, module packaging, and Godog-based BDD tests.
 
 ## Checkout And Prerequisites
 
@@ -11,7 +11,7 @@ cd go-ajapro
 
 Requirements:
 
-- Go 1.22 or later
+- Go 1.26.3 or later
 - Make
 
 This repository is a multi-module Go workspace. There is no root `go.mod`, so run service commands from the module directories shown below.
@@ -27,9 +27,10 @@ make test
 This runs framework tests and all example module tests:
 
 ```bash
-(cd chenile-framework && go test ./base/... ./owiz/... ./core/... ./http/... ./test/... ./servicegen/... ./packager/...)
+(cd chenile-framework && go test ./base/... ./owiz/... ./core/... ./http/... ./bdd-utils/... ./config/... ./middleware/... ./stm/... ./stateentity/... ./servicegen/... ./packager/...)
 (cd chenile-examples/customer-service && go test ./...)
 (cd chenile-examples/order-service && go test ./...)
+(cd chenile-examples/state-order-service && go test ./...)
 (cd chenile-examples/mainweb-app && go test ./...)
 ```
 
@@ -41,7 +42,7 @@ make coverage
 
 ## Run Godog BDD Tests
 
-Godog is wired through `chenile-framework/test/godog` and runs the Gherkin feature files in-process against the HTTP router. No deployed server is required for BDD tests.
+Godog is wired through `chenile-framework/bdd-utils/godog` and runs the Gherkin feature files in-process against the HTTP router. No deployed server is required for BDD tests.
 
 Customer BDD:
 
@@ -92,6 +93,42 @@ In another terminal:
 curl -X POST http://localhost:8080/orders \
   -H "Content-Type: application/json" \
   -d '{"name":"Order 1"}'
+```
+
+## Framework Modules
+
+Core modules:
+
+- `base`: structured errors and standard response envelopes.
+- `core`: service registry, operation registry, exchange, entrypoint, and interceptor execution.
+- `http`: HTTP router, JSON binding, OpenAPI JSON, and Swagger UI.
+- `middleware`: reusable interceptors such as request ID, validation, and panic recovery helpers.
+- `config`: lightweight environment and file-backed configuration.
+- `stm`: JSON-defined state transition machine with transition actions and automatic states.
+- `stateentity`: lifecycle-driven service registration on top of `stm`.
+- `bdd-utils`: reusable Godog REST test harness for generated services.
+- `packager`: module assembly into runnable apps.
+- `servicegen`: BDD-first service generator.
+
+## Run The State Service Example
+
+The state-order service demonstrates `stm`, `stateentity`, and BDD tests:
+
+```bash
+(cd chenile-examples/state-order-service && go test ./...)
+(cd chenile-examples/state-order-service && go run ./cmd/state-order-service)
+```
+
+Create and transition an order:
+
+```bash
+curl -X POST http://localhost:8080/state-orders \
+  -H "Content-Type: application/json" \
+  -d '{"id":"order-1","name":"Order 1"}'
+
+curl -X POST http://localhost:8080/state-orders/event \
+  -H "Content-Type: application/json" \
+  -d '{"id":"order-1","event":"confirm"}'
 ```
 
 ## Run The Combined Web App
@@ -184,8 +221,8 @@ service modules
 | Spring MVC controller | `net/http` router backed by operation metadata | `chenile-framework/http/router.go` |
 | Spring annotations | explicit operation registration | `customer/controller.go`, `order/controller.go` |
 | Spring DI | constructors and explicit module registration | `NewService()`, `Register(...)` |
-| Cucumber JVM | Godog | `chenile-framework/test/godog`, `*.feature` files |
-| Spring MockMvc | `net/http/httptest` in Godog utilities | `chenile-framework/test/godog/rest.go` |
+| Cucumber JVM | Godog | `chenile-framework/bdd-utils/godog`, `*.feature` files |
+| Spring MockMvc | `net/http/httptest` in Godog utilities | `chenile-framework/bdd-utils/godog/rest.go` |
 | OpenAPI / Swagger | generated OpenAPI JSON and Swagger UI | `/openapi.json`, `/swagger` |
 
 ## More Documentation

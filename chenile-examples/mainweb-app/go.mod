@@ -1,6 +1,8 @@
 module mainweb-app
 
-go 1.22
+go 1.26
+
+toolchain go1.26.3
 
 require (
 	customer-service v0.0.0

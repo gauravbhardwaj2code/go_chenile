@@ -27,7 +27,17 @@ func NewEntryPoint(registry *Registry, interceptors ...Interceptor) *EntryPoint 
 	}
 }
 
-func (e *EntryPoint) Execute(ctx context.Context, exchange *Exchange) response.GenericResponse {
+func (e *EntryPoint) Execute(ctx context.Context, exchange *Exchange) (result response.GenericResponse) {
+	defer func() {
+		if recovered := recover(); recovered != nil {
+			result = errorResponse(chenileerrors.Builder().
+				Status(http.StatusInternalServerError).
+				MessageKey("chenile.panic").
+				Description("panic recovered during service execution").
+				Param("panic", recovered).
+				Build())
+		}
+	}()
 	if exchange.Context == nil {
 		exchange.Context = ctx
 	}
@@ -60,13 +70,30 @@ func (e *EntryPoint) Execute(ctx context.Context, exchange *Exchange) response.G
 	if err := afterChain.Execute(ctx, exchange); err != nil {
 		return errorResponse(err)
 	}
+	if exchange.Err != nil {
+		return errorResponse(exchange.Err)
+	}
 	return response.Success(payload)
 }
 
 func errorResponse(err error) response.GenericResponse {
 	var chenileErr chenileerrors.ChenileError
 	if errors.As(err, &chenileErr) {
-		return response.Failure(chenileErr.Status, chenileErr.Description, chenileErr.SubErrorCode)
+		result := response.Failure(chenileErr.Status, chenileErr.Description, chenileErr.SubErrorCode)
+		result.Errors[0].MessageKey = chenileErr.MessageKey
+		result.Errors[0].Code = chenileErr.Code
+		if chenileErr.Code != 0 {
+			result.Code = chenileErr.Status
+		}
+		for _, field := range chenileErr.Fields {
+			result.Errors = append(result.Errors, response.ResponseMessage{
+				Description: field.Description,
+				MessageKey:  field.MessageKey,
+				Severity:    response.Error,
+				Field:       field.Field,
+			})
+		}
+		return result
 	}
 	return response.Failure(http.StatusInternalServerError, err.Error(), 0)
 }

@@ -102,6 +102,8 @@ func generate(target string, d data) error {
 		d.Package + "/service.go":                     serviceTemplate,
 		d.Package + "/controller.go":                  controllerTemplate,
 		d.Package + "/module.go":                      moduleTemplate,
+		d.Package + "/errors.go":                      errorsTemplate,
+		"config/application.yaml":                     configTemplate,
 		d.Package + "/service_test.go":                serviceUnitTestTemplate,
 		d.Package + "/controller_test.go":             controllerUnitTestTemplate,
 		"test/" + d.Package + "_service_test.go":      testTemplate,
@@ -165,21 +167,26 @@ func updateWorkspace(target string, d data) error {
 
 const goModTemplate = `module {{.ModuleName}}
 
-go 1.22
+go 1.26
+
+toolchain go1.26.3
 
 require (
+	bdd-utils v0.0.0
+	base v0.0.0
+	config v0.0.0
 	core v0.0.0
 	http v0.0.0
 	packager v0.0.0
-	test v0.0.0
 )
 
+replace bdd-utils => {{.FrameworkRoot}}/bdd-utils
 replace base => {{.FrameworkRoot}}/base
+replace config => {{.FrameworkRoot}}/config
 replace core => {{.FrameworkRoot}}/core
 replace http => {{.FrameworkRoot}}/http
 replace owiz => {{.FrameworkRoot}}/owiz
 replace packager => {{.FrameworkRoot}}/packager
-replace test => {{.FrameworkRoot}}/test
 `
 
 const mainTemplate = `package main
@@ -187,18 +194,24 @@ const mainTemplate = `package main
 import (
 	"log"
 
+	"config"
 	"packager"
 
 	"{{.ModuleName}}/{{.Package}}"
 )
 
 func main() {
+	cfg, err := config.Load("config/application.yaml")
+	if err != nil {
+		log.Fatal(err)
+	}
 	app, err := packager.NewWebApp(packager.Module{Name: "{{.Package}}", Register: {{.Package}}.Register})
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("listening on :8080")
-	log.Fatal(app.ListenAndServe(":8080"))
+	address := ":" + cfg.String("server.port", "8080")
+	log.Println("listening on " + address)
+	log.Fatal(app.ListenAndServe(address))
 }
 `
 
@@ -229,6 +242,9 @@ func NewService() Service {
 }
 
 func (service) Create(ctx context.Context, request Create{{.TypeName}}Request) ({{.TypeName}}, error) {
+	if request.Name == "" {
+		return {{.TypeName}}{}, nameRequired()
+	}
 	return {{.TypeName}}{
 		ID:   "{{.Package}}-1",
 		Name: request.Name,
@@ -271,6 +287,34 @@ func Register(registry *core.Registry) error {
 const moduleTemplate = `package {{.Package}}
 
 // Package {{.Package}} is a generated Chenile service module.
+`
+
+const errorsTemplate = `package {{.Package}}
+
+import (
+	"net/http"
+
+	chenileerrors "base/errors"
+)
+
+const (
+	Error{{.TypeName}}NameRequired = 1001
+)
+
+func nameRequired() error {
+	return chenileerrors.Builder().
+		Status(http.StatusBadRequest).
+		Code(Error{{.TypeName}}NameRequired).
+		MessageKey("{{.Package}}.name.required").
+		Description("name is required").
+		Field("name", "required", "name is required").
+		Build()
+}
+`
+
+const configTemplate = `service.name: {{.ServiceID}}
+server.port: 8080
+chenile.profile: local
 `
 
 const serviceUnitTestTemplate = `package {{.Package}}
@@ -354,7 +398,7 @@ import (
 	"testing"
 
 	"packager"
-	godogtest "test/godog"
+	godogtest "bdd-utils/godog"
 
 	"{{.ModuleName}}/{{.Package}}"
 )

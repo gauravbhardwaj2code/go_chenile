@@ -394,21 +394,25 @@ func main() {
 ```go
 module myservice-service
 
-go 1.22
+go 1.26
+
+toolchain go1.26.3
 
 require (
+    bdd-utils v0.0.0
+    config v0.0.0
     core v0.0.0
     http v0.0.0
     packager v0.0.0
-    test v0.0.0
 )
 
+replace bdd-utils => ../../chenile-framework/bdd-utils
 replace base => ../../chenile-framework/base
+replace config => ../../chenile-framework/config
 replace core => ../../chenile-framework/core
 replace http => ../../chenile-framework/http
 replace owiz => ../../chenile-framework/owiz
 replace packager => ../../chenile-framework/packager
-replace test => ../../chenile-framework/test
 ```
 
 ---

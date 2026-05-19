@@ -11,11 +11,15 @@ This guide is for AI agents working with the Chenile-Go framework. It provides e
 ├── chenile-framework/          # Core framework modules
 │   ├── base/                   # Foundation types (errors, responses)
 │   ├── core/                   # Registry, Exchange, EntryPoint
+│   ├── bdd-utils/              # Godog BDD testing utilities
+│   ├── config/                 # Config loading
 │   ├── http/                   # HTTP router and handlers
+│   ├── middleware/             # Reusable interceptors
 │   ├── owiz/                   # Command chain orchestration
 │   ├── packager/               # Application assembler
 │   ├── servicegen/             # Service skeleton generator
-│   └── test/                   # Godog BDD testing utilities
+│   ├── stateentity/            # State entity service registration
+│   └── stm/                    # State transition machine
 ├── chenile-examples/           # Example services
 │   ├── customer-service/       # Standalone customer service
 │   ├── order-service/          # Standalone order service

@@ -4,8 +4,8 @@ import (
 	"io"
 	"testing"
 
+	godogtest "bdd-utils/godog"
 	"packager"
-	godogtest "test/godog"
 
 	"order-service/order"
 )

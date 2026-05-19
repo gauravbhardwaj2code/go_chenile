@@ -2,7 +2,7 @@
 
 ## Summary
 
-Status: validated on 2026-05-18.
+Status: validated on 2026-05-19.
 
 The framework modules and example services build and pass the repository test command:
 
@@ -21,9 +21,10 @@ make coverage
 The command runs:
 
 ```bash
-cd chenile-framework && go test ./base/... ./owiz/... ./core/... ./http/... ./test/... ./servicegen/... ./packager/...
+cd chenile-framework && go test ./base/... ./owiz/... ./core/... ./http/... ./bdd-utils/... ./config/... ./middleware/... ./stm/... ./stateentity/... ./servicegen/... ./packager/...
 cd chenile-examples/customer-service && go test ./...
 cd chenile-examples/order-service && go test ./...
+cd chenile-examples/state-order-service && go test ./...
 cd chenile-examples/mainweb-app && go test ./...
 ```
 
@@ -38,7 +39,11 @@ Framework modules:
 - `owiz/chain`: pass
 - `core`: pass
 - `http`: pass
-- `test/godog`: pass
+- `bdd-utils/godog`: pass
+- `config`: pass
+- `middleware`: pass
+- `stm`: pass
+- `stateentity`: pass
 - `servicegen/cmd/chenile-servicegen`: pass
 - `packager`: pass
 - `packager/cmd/chenile-packager`: pass
@@ -47,6 +52,7 @@ Example modules:
 
 - `chenile-examples/customer-service`: pass
 - `chenile-examples/order-service`: pass
+- `chenile-examples/state-order-service`: pass
 - `chenile-examples/mainweb-app`: pass
 
 ## Verified Architecture
