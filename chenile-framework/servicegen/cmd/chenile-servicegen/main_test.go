@@ -102,7 +102,7 @@ func TestGenerateCanUsePublicDependencies(t *testing.T) {
 		t.Fatal(err)
 	}
 	goMod := string(content)
-	if !strings.Contains(goMod, "github.com/gauravbhardwaj2code/go_chenile/chenile-framework/chenile v0.1.0") {
+	if !strings.Contains(goMod, "github.com/gauravbhardwaj2code/go_chenile/chenile-framework/chenile v0.1.1") {
 		t.Fatalf("expected public Chenile module requirement, got:\n%s", goMod)
 	}
 	if strings.Contains(goMod, "replace github.com/gauravbhardwaj2code/go_chenile") {

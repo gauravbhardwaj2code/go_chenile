@@ -1,7 +1,5 @@
-```
 # Dependencies
-go.work
-go.sum
+vendor/
 
 # Build artifacts
 *.o
@@ -11,11 +9,6 @@ go.sum
 *.dll
 *.exe
 *.out
-
-# Go specific
-vendor/
-*.mod
-*.sum
 
 # Logs
 *.log
@@ -63,4 +56,3 @@ htmlcov/
 *.tar.bz2
 *.tar.xz
 *.tar.zst
-```

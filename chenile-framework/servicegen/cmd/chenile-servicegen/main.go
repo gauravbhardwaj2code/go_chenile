@@ -208,17 +208,17 @@ go 1.26
 toolchain go1.26.3
 
 require (
-	github.com/gauravbhardwaj2code/go_chenile/chenile-framework/bdd-utils v0.1.0
-	github.com/gauravbhardwaj2code/go_chenile/chenile-framework/base v0.1.0
-	github.com/gauravbhardwaj2code/go_chenile/chenile-framework/chenile v0.1.0
-	github.com/gauravbhardwaj2code/go_chenile/chenile-framework/config v0.1.0
-	github.com/gauravbhardwaj2code/go_chenile/chenile-framework/packager v0.1.0
+	github.com/gauravbhardwaj2code/go_chenile/chenile-framework/bdd-utils v0.1.1
+	github.com/gauravbhardwaj2code/go_chenile/chenile-framework/base v0.1.1
+	github.com/gauravbhardwaj2code/go_chenile/chenile-framework/chenile v0.1.1
+	github.com/gauravbhardwaj2code/go_chenile/chenile-framework/config v0.1.1
+	github.com/gauravbhardwaj2code/go_chenile/chenile-framework/packager v0.1.1
 )
 
 require (
-	github.com/gauravbhardwaj2code/go_chenile/chenile-framework/core v0.1.0 // indirect
-	github.com/gauravbhardwaj2code/go_chenile/chenile-framework/http v0.1.0 // indirect
-	github.com/gauravbhardwaj2code/go_chenile/chenile-framework/owiz v0.1.0 // indirect
+	github.com/gauravbhardwaj2code/go_chenile/chenile-framework/core v0.1.1 // indirect
+	github.com/gauravbhardwaj2code/go_chenile/chenile-framework/http v0.1.1 // indirect
+	github.com/gauravbhardwaj2code/go_chenile/chenile-framework/owiz v0.1.1 // indirect
 	github.com/cucumber/gherkin/go/v26 v26.2.0 // indirect
 	github.com/cucumber/godog v0.15.1 // indirect
 	github.com/cucumber/messages/go/v21 v21.0.1 // indirect

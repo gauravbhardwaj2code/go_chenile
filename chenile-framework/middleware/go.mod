@@ -1,4 +1,4 @@
-module github.com/gauravbhardwaj2code/go_chenile/chenile-framework/http
+module github.com/gauravbhardwaj2code/go_chenile/chenile-framework/middleware
 
 go 1.26
 
@@ -9,6 +9,10 @@ require (
 	github.com/gauravbhardwaj2code/go_chenile/chenile-framework/core v0.1.1
 )
 
+require github.com/gauravbhardwaj2code/go_chenile/chenile-framework/owiz v0.1.1 // indirect
+
 replace github.com/gauravbhardwaj2code/go_chenile/chenile-framework/base => ../base
 
 replace github.com/gauravbhardwaj2code/go_chenile/chenile-framework/core => ../core
+
+replace github.com/gauravbhardwaj2code/go_chenile/chenile-framework/owiz => ../owiz
