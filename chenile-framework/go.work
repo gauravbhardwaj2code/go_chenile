@@ -18,4 +18,5 @@ use (
 	./../chenile-examples/inventory-service
 	./../chenile-examples/customer-service
 	./../chenile-examples/order-service
+	./../chenile-examples/slot-service
 )

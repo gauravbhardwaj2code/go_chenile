@@ -78,6 +78,29 @@ func TestGenerateWritesRunnableServiceSkeleton(t *testing.T) {
 	}
 }
 
+func TestGenerateCanUsePublicDependencies(t *testing.T) {
+	dir := t.TempDir()
+	d := derive("customer", "../..")
+	d.UseLocalReplace = false
+	target := filepath.Join(dir, d.BinaryName)
+
+	if err := generate(target, d); err != nil {
+		t.Fatal(err)
+	}
+
+	content, err := os.ReadFile(filepath.Join(target, "go.mod"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	goMod := string(content)
+	if !strings.Contains(goMod, "github.com/gauravbhardwaj2code/go_chenile/chenile-framework/chenile v0.1.0") {
+		t.Fatalf("expected public Chenile module requirement, got:\n%s", goMod)
+	}
+	if strings.Contains(goMod, "replace github.com/gauravbhardwaj2code/go_chenile") {
+		t.Fatalf("expected no local replace directives, got:\n%s", goMod)
+	}
+}
+
 func TestUpdateWorkspaceAddsGeneratedService(t *testing.T) {
 	root := t.TempDir()
 	workFile := filepath.Join(root, "go.work")
@@ -121,6 +144,29 @@ func TestRunGeneratesServiceAndUpdatesWorkspace(t *testing.T) {
 	}
 	if !strings.Contains(stdout.String(), "go test ./...") {
 		t.Fatalf("expected next steps, got %q", stdout.String())
+	}
+}
+
+func TestRunGeneratesPublicDependencyService(t *testing.T) {
+	root := t.TempDir()
+	if err := os.WriteFile(filepath.Join(root, "go.work"), []byte("go 1.22\n\nuse (\n\t./base\n)\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	out := filepath.Join(root, "examples")
+	var stdout bytes.Buffer
+	var stderr bytes.Buffer
+
+	code := run([]string{"new", "--name", "invoice", "--out", out, "--framework-root", "../..", "--public-deps"}, &stdout, &stderr)
+
+	if code != 0 {
+		t.Fatalf("expected exit code 0, got %d; stderr=%s", code, stderr.String())
+	}
+	content, err := os.ReadFile(filepath.Join(out, "invoice-service", "go.mod"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(content), "replace github.com/gauravbhardwaj2code/go_chenile") {
+		t.Fatalf("expected public dependency go.mod, got:\n%s", string(content))
 	}
 }
 

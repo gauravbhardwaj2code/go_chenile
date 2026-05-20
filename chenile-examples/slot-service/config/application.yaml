@@ -1,0 +1,3 @@
+service.name: slotService
+server.port: 8080
+chenile.profile: local

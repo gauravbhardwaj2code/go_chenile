@@ -30,6 +30,7 @@ This runs framework tests and all example module tests:
 (cd chenile-framework && go test ./base/... ./owiz/... ./core/... ./http/... ./bdd-utils/... ./config/... ./middleware/... ./stm/... ./stateentity/... ./servicegen/... ./packager/...)
 (cd chenile-examples/customer-service && go test ./...)
 (cd chenile-examples/order-service && go test ./...)
+(cd chenile-examples/slot-service && GOWORK=$(cd ../../chenile-framework && pwd)/go.work go test ./...)
 (cd chenile-examples/state-order-service && go test ./...)
 (cd chenile-examples/mainweb-app && go test ./...)
 ```
@@ -56,12 +57,19 @@ Order BDD:
 (cd chenile-examples/order-service && go test ./test/... -v)
 ```
 
+Slot BDD:
+
+```bash
+(cd chenile-examples/slot-service && GOWORK=$(cd ../../chenile-framework && pwd)/go.work go test ./test/... -v)
+```
+
 Feature files:
 
 - `chenile-examples/customer-service/test/features/customer.feature`
 - `chenile-examples/order-service/test/features/order.feature`
+- `chenile-examples/slot-service/test/features/slot.feature`
 
-The feature steps post JSON to `/customers` or `/orders`, assert HTTP 200, assert `success` is true, and inspect response payload fields.
+The feature steps post JSON to `/customers`, `/orders`, `/runners`, or `/allocations`, assert HTTP status and success fields, and inspect response payload fields.
 
 ## Run Independent Services
 
@@ -93,6 +101,24 @@ In another terminal:
 curl -X POST http://localhost:8080/orders \
   -H "Content-Type: application/json" \
   -d '{"name":"Order 1"}'
+```
+
+Slot service:
+
+```bash
+(cd chenile-examples/slot-service && GOWORK=$(cd ../../chenile-framework && pwd)/go.work go run ./cmd/slot-service)
+```
+
+In another terminal:
+
+```bash
+curl -X POST http://localhost:8080/runners \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Asha","skills":["cook"],"attributes":{"diet":"veg"},"slots":[{"date":"2026-06-01","start":"09:00","end":"11:00"}]}'
+
+curl -X POST http://localhost:8080/allocations \
+  -H "Content-Type: application/json" \
+  -d '{"requestId":"req-1","skill":"cook","slot":{"date":"2026-06-01","start":"09:00","end":"11:00"},"constraints":[{"key":"diet","value":"veg","type":"hard"}]}'
 ```
 
 ## Framework Modules
@@ -201,7 +227,13 @@ The generator creates:
 - Godog BDD runner and Gherkin feature file
 - `go.mod` with local framework `replace` directives
 
-There is no config folder. Services are wired explicitly in Go code.
+Use `--public-deps` when the generated service should depend directly on published Chenile module versions without local `replace` directives:
+
+```bash
+(cd chenile-framework/servicegen && go run ./cmd/chenile-servicegen new --name slot --out ../../chenile-examples --public-deps)
+```
+
+Generated services include a config folder for the port and service name. Service wiring is explicit in Go code.
 
 ## Architecture Map
 

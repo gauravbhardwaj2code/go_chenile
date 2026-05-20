@@ -14,14 +14,15 @@ import (
 )
 
 type data struct {
-	Name          string
-	Package       string
-	TypeName      string
-	ServiceID     string
-	BinaryName    string
-	ModuleName    string
-	RouteBase     string
-	FrameworkRoot string
+	Name            string
+	Package         string
+	TypeName        string
+	ServiceID       string
+	BinaryName      string
+	ModuleName      string
+	RouteBase       string
+	FrameworkRoot   string
+	UseLocalReplace bool
 }
 
 func main() {
@@ -38,6 +39,7 @@ func run(args []string, stdout io.Writer, stderr io.Writer) int {
 	name := flags.String("name", "", "service name")
 	out := flags.String("out", ".", "output directory")
 	frameworkRoot := flags.String("framework-root", "../../chenile-framework", "relative path from generated service to the framework root")
+	publicDeps := flags.Bool("public-deps", false, "generate public Chenile module dependencies without local replace directives")
 	if err := flags.Parse(args[1:]); err != nil {
 		return 2
 	}
@@ -46,6 +48,7 @@ func run(args []string, stdout io.Writer, stderr io.Writer) int {
 		return 2
 	}
 	d := derive(*name, *frameworkRoot)
+	d.UseLocalReplace = !*publicDeps
 	target := filepath.Join(*out, d.BinaryName)
 	if err := generate(target, d); err != nil {
 		fmt.Fprintln(stderr, err)
@@ -64,6 +67,9 @@ func run(args []string, stdout io.Writer, stderr io.Writer) int {
 }
 
 func tidyGeneratedModule(target string, d data) error {
+	if !d.UseLocalReplace {
+		return nil
+	}
 	frameworkRoot := filepath.Clean(filepath.Join(target, d.FrameworkRoot))
 	if _, err := os.Stat(filepath.Join(frameworkRoot, "bdd-utils", "go.mod")); os.IsNotExist(err) {
 		return nil
@@ -89,14 +95,15 @@ func derive(name string, frameworkRoot string) data {
 	pkg := strings.Join(parts, "")
 	kebab := strings.Join(parts, "-")
 	return data{
-		Name:          name,
-		Package:       pkg,
-		TypeName:      typeName,
-		ServiceID:     pkg + "Service",
-		BinaryName:    kebab + "-service",
-		ModuleName:    kebab + "-service",
-		RouteBase:     "/" + kebab + "s",
-		FrameworkRoot: frameworkRoot,
+		Name:            name,
+		Package:         pkg,
+		TypeName:        typeName,
+		ServiceID:       pkg + "Service",
+		BinaryName:      kebab + "-service",
+		ModuleName:      kebab + "-service",
+		RouteBase:       "/" + kebab + "s",
+		FrameworkRoot:   frameworkRoot,
+		UseLocalReplace: true,
 	}
 }
 
@@ -220,7 +227,7 @@ require (
 	github.com/spf13/pflag v1.0.7 // indirect
 )
 
-replace github.com/gauravbhardwaj2code/go_chenile/chenile-framework/bdd-utils => {{.FrameworkRoot}}/bdd-utils
+{{if .UseLocalReplace}}replace github.com/gauravbhardwaj2code/go_chenile/chenile-framework/bdd-utils => {{.FrameworkRoot}}/bdd-utils
 replace github.com/gauravbhardwaj2code/go_chenile/chenile-framework/base => {{.FrameworkRoot}}/base
 replace github.com/gauravbhardwaj2code/go_chenile/chenile-framework/chenile => {{.FrameworkRoot}}/chenile
 replace github.com/gauravbhardwaj2code/go_chenile/chenile-framework/config => {{.FrameworkRoot}}/config
@@ -228,6 +235,7 @@ replace github.com/gauravbhardwaj2code/go_chenile/chenile-framework/core => {{.F
 replace github.com/gauravbhardwaj2code/go_chenile/chenile-framework/http => {{.FrameworkRoot}}/http
 replace github.com/gauravbhardwaj2code/go_chenile/chenile-framework/owiz => {{.FrameworkRoot}}/owiz
 replace github.com/gauravbhardwaj2code/go_chenile/chenile-framework/packager => {{.FrameworkRoot}}/packager
+{{end}}
 `
 
 const mainTemplate = `package main
