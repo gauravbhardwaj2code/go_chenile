@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"config"
-	"packager"
+	"github.com/gauravbhardwaj2code/go_chenile/chenile-framework/config"
+	"github.com/gauravbhardwaj2code/go_chenile/chenile-framework/packager"
 
 	"order-service/order/module"
 )

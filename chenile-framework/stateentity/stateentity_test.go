@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"core"
-	"stm"
+	"github.com/gauravbhardwaj2code/go_chenile/chenile-framework/core"
+	"github.com/gauravbhardwaj2code/go_chenile/chenile-framework/stm"
 )
 
 type entity struct {

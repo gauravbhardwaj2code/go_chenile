@@ -5,8 +5,8 @@ import (
 	"io"
 	"net/http"
 
-	"base/response"
-	"core"
+	"github.com/gauravbhardwaj2code/go_chenile/chenile-framework/base/response"
+	"github.com/gauravbhardwaj2code/go_chenile/chenile-framework/core"
 )
 
 type route struct {

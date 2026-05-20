@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"chenile"
-	"core"
+	"github.com/gauravbhardwaj2code/go_chenile/chenile-framework/chenile"
+	"github.com/gauravbhardwaj2code/go_chenile/chenile-framework/core"
 )
 
 func TestNewWebAppCombinesMultipleModules(t *testing.T) {

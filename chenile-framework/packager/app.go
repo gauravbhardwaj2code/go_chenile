@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"chenile"
-	"core"
-	chenilehttp "http"
+	"github.com/gauravbhardwaj2code/go_chenile/chenile-framework/chenile"
+	"github.com/gauravbhardwaj2code/go_chenile/chenile-framework/core"
+	chenilehttp "github.com/gauravbhardwaj2code/go_chenile/chenile-framework/http"
 )
 
 type Module struct {

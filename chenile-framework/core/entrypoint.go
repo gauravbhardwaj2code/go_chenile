@@ -5,9 +5,9 @@ import (
 	"errors"
 	"net/http"
 
-	chenileerrors "base/errors"
-	"base/response"
-	"owiz/chain"
+	chenileerrors "github.com/gauravbhardwaj2code/go_chenile/chenile-framework/base/errors"
+	"github.com/gauravbhardwaj2code/go_chenile/chenile-framework/base/response"
+	"github.com/gauravbhardwaj2code/go_chenile/chenile-framework/owiz/chain"
 )
 
 type Interceptor interface {

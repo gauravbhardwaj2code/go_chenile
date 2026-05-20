@@ -1,26 +1,26 @@
-module packager
+module github.com/gauravbhardwaj2code/go_chenile/chenile-framework/packager
 
 go 1.26
 
 toolchain go1.26.3
 
 require (
-	chenile v0.0.0
-	core v0.0.0
-	http v0.0.0
+	github.com/gauravbhardwaj2code/go_chenile/chenile-framework/chenile v0.1.0
+	github.com/gauravbhardwaj2code/go_chenile/chenile-framework/core v0.1.0
+	github.com/gauravbhardwaj2code/go_chenile/chenile-framework/http v0.1.0
 )
 
 require (
-	base v0.0.0 // indirect
-	owiz v0.0.0 // indirect
+	github.com/gauravbhardwaj2code/go_chenile/chenile-framework/base v0.1.0 // indirect
+	github.com/gauravbhardwaj2code/go_chenile/chenile-framework/owiz v0.1.0 // indirect
 )
 
-replace chenile => ../chenile
+replace github.com/gauravbhardwaj2code/go_chenile/chenile-framework/chenile => ../chenile
 
-replace core => ../core
+replace github.com/gauravbhardwaj2code/go_chenile/chenile-framework/core => ../core
 
-replace http => ../http
+replace github.com/gauravbhardwaj2code/go_chenile/chenile-framework/http => ../http
 
-replace base => ../base
+replace github.com/gauravbhardwaj2code/go_chenile/chenile-framework/base => ../base
 
-replace owiz => ../owiz
+replace github.com/gauravbhardwaj2code/go_chenile/chenile-framework/owiz => ../owiz

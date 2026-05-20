@@ -1,7 +1,7 @@
 package module
 
 import (
-	"chenile"
+	"github.com/gauravbhardwaj2code/go_chenile/chenile-framework/chenile"
 
 	"inventory-service/inventory/contract"
 	"inventory-service/inventory/repository"

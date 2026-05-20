@@ -63,7 +63,7 @@ func TestGenerateWritesRunnableServiceSkeleton(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if strings.Contains(string(controller), `"core"`) || strings.Contains(string(controller), "core.") {
+	if strings.Contains(string(controller), `"github.com/gauravbhardwaj2code/go_chenile/chenile-framework/core"`) || strings.Contains(string(controller), "core.") {
 		t.Fatalf("contract layer should not expose core registry details:\n%s", string(controller))
 	}
 	if !strings.Contains(string(controller), "chenile.POST") {
@@ -146,7 +146,7 @@ func TestRunUsesRepositoryDefaultFrameworkRoot(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.Contains(string(content), "replace core => ../../chenile-framework/core") {
+	if !strings.Contains(string(content), "replace github.com/gauravbhardwaj2code/go_chenile/chenile-framework/core => ../../chenile-framework/core") {
 		t.Fatalf("expected repository-relative framework replace, got:\n%s", string(content))
 	}
 	workContent, err := os.ReadFile(filepath.Join(framework, "go.work"))

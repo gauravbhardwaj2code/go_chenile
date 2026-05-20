@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"runtime/debug"
 
-	chenileerrors "base/errors"
-	"core"
+	chenileerrors "github.com/gauravbhardwaj2code/go_chenile/chenile-framework/base/errors"
+	"github.com/gauravbhardwaj2code/go_chenile/chenile-framework/core"
 )
 
 type RequestIDGenerator func() string

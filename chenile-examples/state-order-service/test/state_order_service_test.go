@@ -4,8 +4,8 @@ import (
 	"io"
 	"testing"
 
-	godogtest "bdd-utils/godog"
-	"packager"
+	godogtest "github.com/gauravbhardwaj2code/go_chenile/chenile-framework/bdd-utils/godog"
+	"github.com/gauravbhardwaj2code/go_chenile/chenile-framework/packager"
 
 	"state-order-service/order"
 )

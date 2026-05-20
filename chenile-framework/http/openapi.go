@@ -7,7 +7,7 @@ import (
 	"sort"
 	"strings"
 
-	"core"
+	"github.com/gauravbhardwaj2code/go_chenile/chenile-framework/core"
 )
 
 type openAPIDocument struct {

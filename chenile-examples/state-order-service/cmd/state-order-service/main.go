@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"packager"
+	"github.com/gauravbhardwaj2code/go_chenile/chenile-framework/packager"
 
 	"state-order-service/order"
 )

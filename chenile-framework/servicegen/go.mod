@@ -1,4 +1,4 @@
-module servicegen
+module github.com/gauravbhardwaj2code/go_chenile/chenile-framework/servicegen
 
 go 1.26
 

@@ -1,9 +1,9 @@
 package order
 
 import (
-	"core"
-	"stateentity"
-	"stm"
+	"github.com/gauravbhardwaj2code/go_chenile/chenile-framework/core"
+	"github.com/gauravbhardwaj2code/go_chenile/chenile-framework/stateentity"
+	"github.com/gauravbhardwaj2code/go_chenile/chenile-framework/stm"
 )
 
 func Register(registry *core.Registry) error {

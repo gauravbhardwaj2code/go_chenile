@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"packager"
+	"github.com/gauravbhardwaj2code/go_chenile/chenile-framework/packager"
 )
 
 func TestMainwebAppCombinesCustomerAndOrderServices(t *testing.T) {

@@ -199,14 +199,17 @@ go 1.26
 toolchain go1.26.3
 
 require (
-	bdd-utils v0.0.0
-	base v0.0.0
-	chenile v0.0.0
-	config v0.0.0
-	packager v0.0.0
+	github.com/gauravbhardwaj2code/go_chenile/chenile-framework/bdd-utils v0.1.0
+	github.com/gauravbhardwaj2code/go_chenile/chenile-framework/base v0.1.0
+	github.com/gauravbhardwaj2code/go_chenile/chenile-framework/chenile v0.1.0
+	github.com/gauravbhardwaj2code/go_chenile/chenile-framework/config v0.1.0
+	github.com/gauravbhardwaj2code/go_chenile/chenile-framework/packager v0.1.0
 )
 
 require (
+	github.com/gauravbhardwaj2code/go_chenile/chenile-framework/core v0.1.0 // indirect
+	github.com/gauravbhardwaj2code/go_chenile/chenile-framework/http v0.1.0 // indirect
+	github.com/gauravbhardwaj2code/go_chenile/chenile-framework/owiz v0.1.0 // indirect
 	github.com/cucumber/gherkin/go/v26 v26.2.0 // indirect
 	github.com/cucumber/godog v0.15.1 // indirect
 	github.com/cucumber/messages/go/v21 v21.0.1 // indirect
@@ -215,18 +218,16 @@ require (
 	github.com/hashicorp/go-memdb v1.3.4 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/spf13/pflag v1.0.7 // indirect
-	http v0.0.0 // indirect
-	owiz v0.0.0 // indirect
 )
 
-replace bdd-utils => {{.FrameworkRoot}}/bdd-utils
-replace base => {{.FrameworkRoot}}/base
-replace chenile => {{.FrameworkRoot}}/chenile
-replace config => {{.FrameworkRoot}}/config
-replace core => {{.FrameworkRoot}}/core
-replace http => {{.FrameworkRoot}}/http
-replace owiz => {{.FrameworkRoot}}/owiz
-replace packager => {{.FrameworkRoot}}/packager
+replace github.com/gauravbhardwaj2code/go_chenile/chenile-framework/bdd-utils => {{.FrameworkRoot}}/bdd-utils
+replace github.com/gauravbhardwaj2code/go_chenile/chenile-framework/base => {{.FrameworkRoot}}/base
+replace github.com/gauravbhardwaj2code/go_chenile/chenile-framework/chenile => {{.FrameworkRoot}}/chenile
+replace github.com/gauravbhardwaj2code/go_chenile/chenile-framework/config => {{.FrameworkRoot}}/config
+replace github.com/gauravbhardwaj2code/go_chenile/chenile-framework/core => {{.FrameworkRoot}}/core
+replace github.com/gauravbhardwaj2code/go_chenile/chenile-framework/http => {{.FrameworkRoot}}/http
+replace github.com/gauravbhardwaj2code/go_chenile/chenile-framework/owiz => {{.FrameworkRoot}}/owiz
+replace github.com/gauravbhardwaj2code/go_chenile/chenile-framework/packager => {{.FrameworkRoot}}/packager
 `
 
 const mainTemplate = `package main
@@ -234,8 +235,8 @@ const mainTemplate = `package main
 import (
 	"log"
 
-	"config"
-	"packager"
+	"github.com/gauravbhardwaj2code/go_chenile/chenile-framework/config"
+	"github.com/gauravbhardwaj2code/go_chenile/chenile-framework/packager"
 
 	"{{.ModuleName}}/{{.Package}}/module"
 )
@@ -284,7 +285,7 @@ const contractControllerTemplate = `package contract
 import (
 	"context"
 
-	"chenile"
+	"github.com/gauravbhardwaj2code/go_chenile/chenile-framework/chenile"
 
 	"{{.ModuleName}}/{{.Package}}/domain"
 	servicepkg "{{.ModuleName}}/{{.Package}}/service"
@@ -381,7 +382,7 @@ const domainErrorsTemplate = `package domain
 import (
 	"net/http"
 
-	chenileerrors "base/errors"
+	chenileerrors "github.com/gauravbhardwaj2code/go_chenile/chenile-framework/base/errors"
 )
 
 const (
@@ -516,7 +517,7 @@ func TestServiceRejectsMissingName(t *testing.T) {
 const moduleTemplate = `package module
 
 import (
-	"chenile"
+	"github.com/gauravbhardwaj2code/go_chenile/chenile-framework/chenile"
 
 	"{{.ModuleName}}/{{.Package}}/contract"
 	"{{.ModuleName}}/{{.Package}}/repository"
@@ -543,8 +544,8 @@ import (
 	"io"
 	"testing"
 
-	"packager"
-	godogtest "bdd-utils/godog"
+	"github.com/gauravbhardwaj2code/go_chenile/chenile-framework/packager"
+	godogtest "github.com/gauravbhardwaj2code/go_chenile/chenile-framework/bdd-utils/godog"
 
 	"{{.ModuleName}}/{{.Package}}/module"
 )

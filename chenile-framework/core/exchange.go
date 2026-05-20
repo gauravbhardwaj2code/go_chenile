@@ -3,7 +3,7 @@ package core
 import (
 	"context"
 
-	"base/response"
+	"github.com/gauravbhardwaj2code/go_chenile/chenile-framework/base/response"
 )
 
 type Exchange struct {

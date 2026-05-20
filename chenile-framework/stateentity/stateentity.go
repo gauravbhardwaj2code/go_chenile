@@ -4,8 +4,8 @@ import (
 	"context"
 	"net/http"
 
-	"core"
-	"stm"
+	"github.com/gauravbhardwaj2code/go_chenile/chenile-framework/core"
+	"github.com/gauravbhardwaj2code/go_chenile/chenile-framework/stm"
 )
 
 type Repository[E stm.Entity] interface {

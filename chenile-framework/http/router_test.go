@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"core"
+	"github.com/gauravbhardwaj2code/go_chenile/chenile-framework/core"
 )
 
 type createRequest struct {

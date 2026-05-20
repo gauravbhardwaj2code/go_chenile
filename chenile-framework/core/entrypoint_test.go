@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"testing"
 
-	chenileerrors "base/errors"
+	chenileerrors "github.com/gauravbhardwaj2code/go_chenile/chenile-framework/base/errors"
 )
 
 type recordingInterceptor struct {

@@ -5,7 +5,7 @@ import (
 	"errors"
 	"testing"
 
-	"core"
+	"github.com/gauravbhardwaj2code/go_chenile/chenile-framework/core"
 )
 
 func TestRequestIDGeneratesMissingHeader(t *testing.T) {

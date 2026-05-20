@@ -1,4 +1,4 @@
-module base
+module github.com/gauravbhardwaj2code/go_chenile/chenile-framework/base
 
 go 1.26
 

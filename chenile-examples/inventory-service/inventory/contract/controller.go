@@ -3,7 +3,7 @@ package contract
 import (
 	"context"
 
-	"chenile"
+	"github.com/gauravbhardwaj2code/go_chenile/chenile-framework/chenile"
 
 	"inventory-service/inventory/domain"
 	servicepkg "inventory-service/inventory/service"

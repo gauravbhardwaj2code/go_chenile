@@ -12,7 +12,7 @@ import (
 
 	"github.com/cucumber/godog"
 
-	chenilehttp "http"
+	chenilehttp "github.com/gauravbhardwaj2code/go_chenile/chenile-framework/http"
 )
 
 type Suite struct {

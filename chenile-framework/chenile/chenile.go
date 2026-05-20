@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	"core"
+	"github.com/gauravbhardwaj2code/go_chenile/chenile-framework/core"
 )
 
 type Module interface {
