@@ -37,20 +37,44 @@ func TestGenerateWritesRunnableServiceSkeleton(t *testing.T) {
 	expectedFiles := []string{
 		"go.mod",
 		"cmd/customer-service/main.go",
-		"customer/controller.go",
-		"customer/controller_test.go",
-		"customer/service.go",
-		"customer/service_test.go",
-		"customer/model.go",
-		"customer/module.go",
+		"customer/contract/request.go",
+		"customer/contract/response.go",
+		"customer/contract/controller.go",
+		"customer/contract/controller_test.go",
+		"customer/domain/model.go",
+		"customer/domain/errors.go",
+		"customer/repository/repository.go",
+		"customer/repository/memory_repository.go",
+		"customer/service/service.go",
+		"customer/service/service_test.go",
+		"customer/module/module.go",
+		"config/application.yaml",
 		"test/customer_service_test.go",
 		"test/features/customer.feature",
 		"test/fixtures/create_customer.json",
+		"test/fixtures/create_customer_missing_name.json",
 	}
 	for _, expectedFile := range expectedFiles {
 		if _, err := os.Stat(filepath.Join(target, expectedFile)); err != nil {
 			t.Fatalf("expected generated file %s: %v", expectedFile, err)
 		}
+	}
+	controller, err := os.ReadFile(filepath.Join(target, "customer/contract/controller.go"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(controller), `"core"`) || strings.Contains(string(controller), "core.") {
+		t.Fatalf("contract layer should not expose core registry details:\n%s", string(controller))
+	}
+	if !strings.Contains(string(controller), "chenile.POST") {
+		t.Fatalf("expected typed chenile route declaration:\n%s", string(controller))
+	}
+	module, err := os.ReadFile(filepath.Join(target, "customer/module/module.go"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(module), "func New() chenile.Module") {
+		t.Fatalf("expected high-level module constructor:\n%s", string(module))
 	}
 }
 

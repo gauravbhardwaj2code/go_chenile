@@ -1,0 +1,13 @@
+Create a `Slot Service` to manage runner (maid/house-help/cook) availability and allocation.
+Runners have daily time slots and skill types (cook, house-help, etc.).
+Customers can request preferences (e.g., veg cook, male helper) as either:
+
+* **Hard constraints** → mandatory match
+* **Soft constraints** → preferred but optional
+
+The service should support:
+
+* Slot availability management
+* Soft vs hard allocation logic
+* Basic matching engine for customer demand
+* BDD test cases for allocation scenarios.

@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"chenile"
 	"core"
 )
 
@@ -30,6 +31,19 @@ func TestNewWebAppRejectsInvalidModules(t *testing.T) {
 	if _, err := NewWebApp(Module{Name: "customer"}); err == nil {
 		t.Fatal("expected missing register function error")
 	}
+}
+
+func TestNewChenileWebAppCombinesHighLevelModules(t *testing.T) {
+	app, err := NewChenileWebApp(
+		testChenileModule("customer", "customerService", "/customers"),
+		testChenileModule("order", "orderService", "/orders"),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assertChenileRoute(t, app, "/customers", `{"name":"Alice"}`, "customerService")
+	assertChenileRoute(t, app, "/orders", `{"name":"Order 1"}`, "orderService")
 }
 
 func testModule(name string, serviceID string, path string) Module {
@@ -58,7 +72,35 @@ func testModule(name string, serviceID string, path string) Module {
 	}
 }
 
+func testChenileModule(name string, serviceID string, path string) chenile.Module {
+	type request struct {
+		Name string `json:"name"`
+	}
+	return chenile.NewModule(name, func(builder *chenile.Builder) error {
+		return builder.Service(serviceID).Routes(chenile.POST(path, "create", func() *request {
+			return &request{}
+		}, func(ctx context.Context, request request) (map[string]string, error) {
+			return map[string]string{"service": serviceID}, nil
+		}))
+	})
+}
+
 func assertRoute(t *testing.T, app *App, path string, body string, serviceID string) {
+	t.Helper()
+	request := httptest.NewRequest(http.MethodPost, path, strings.NewReader(body))
+	recorder := httptest.NewRecorder()
+
+	app.Router.ServeHTTP(recorder, request)
+
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("expected 200 for %s, got %d; body=%s", path, recorder.Code, recorder.Body.String())
+	}
+	if !strings.Contains(recorder.Body.String(), serviceID) {
+		t.Fatalf("expected response to contain %s, got %s", serviceID, recorder.Body.String())
+	}
+}
+
+func assertChenileRoute(t *testing.T, app *ChenileApp, path string, body string, serviceID string) {
 	t.Helper()
 	request := httptest.NewRequest(http.MethodPost, path, strings.NewReader(body))
 	recorder := httptest.NewRecorder()

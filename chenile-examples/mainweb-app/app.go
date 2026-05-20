@@ -3,13 +3,13 @@ package mainweb
 import (
 	"packager"
 
-	"customer-service/customer"
-	"order-service/order"
+	customermodule "customer-service/customer/module"
+	ordermodule "order-service/order/module"
 )
 
-func NewApp() (*packager.App, error) {
-	return packager.NewWebApp(
-		packager.Module{Name: "customer", Register: customer.Register},
-		packager.Module{Name: "order", Register: order.Register},
+func NewApp() (*packager.ChenileApp, error) {
+	return packager.NewChenileWebApp(
+		customermodule.New(),
+		ordermodule.New(),
 	)
 }

@@ -3,16 +3,22 @@ package main
 import (
 	"log"
 
+	"config"
 	"packager"
 
-	"customer-service/customer"
+	"customer-service/customer/module"
 )
 
 func main() {
-	app, err := packager.NewWebApp(packager.Module{Name: "customer", Register: customer.Register})
+	cfg, err := config.Load("config/application.yaml")
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Println("listening on :8080")
-	log.Fatal(app.ListenAndServe(":8080"))
+	app, err := packager.NewChenileWebApp(module.New())
+	if err != nil {
+		log.Fatal(err)
+	}
+	address := ":" + cfg.String("server.port", "8080")
+	log.Println("listening on " + address)
+	log.Fatal(app.ListenAndServe(address))
 }

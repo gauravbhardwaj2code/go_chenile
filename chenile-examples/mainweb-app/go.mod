@@ -12,6 +12,7 @@ require (
 
 require (
 	base v0.0.0 // indirect
+	chenile v0.0.0 // indirect
 	core v0.0.0 // indirect
 	http v0.0.0 // indirect
 	owiz v0.0.0 // indirect
@@ -20,6 +21,8 @@ require (
 replace customer-service => ../customer-service
 
 replace order-service => ../order-service
+
+replace chenile => ../../chenile-framework/chenile
 
 replace core => ../../chenile-framework/core
 

@@ -11,3 +11,13 @@ Feature: Customer service
     And success is true
     And the REST response key "name" is "Alice"
 
+  Scenario: Reject customer without name
+    When I POST a REST request to URL "/customers" with payload
+      """
+      {
+        "name": ""
+      }
+      """
+    Then the http status code is 400
+    And success is false
+    And the error array size is 2

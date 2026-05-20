@@ -19,7 +19,7 @@ func TestMainwebAppCombinesCustomerAndOrderServices(t *testing.T) {
 	assertRoute(t, app, "/orders", `{"name":"Order 1"}`, "Order 1")
 }
 
-func assertRoute(t *testing.T, app *packager.App, path string, body string, expected string) {
+func assertRoute(t *testing.T, app *packager.ChenileApp, path string, body string, expected string) {
 	t.Helper()
 	request := httptest.NewRequest(http.MethodPost, path, strings.NewReader(body))
 	recorder := httptest.NewRecorder()

@@ -219,7 +219,7 @@ service modules
 | Maven parent POM | `go.work`, per-module `go.mod`, local `replace` directives | `chenile-framework/go.work`, module `go.mod` files |
 | Spring Boot bootstrap | explicit Go `main` with packager setup | `chenile-examples/*/cmd/*/main.go` |
 | Spring MVC controller | `net/http` router backed by operation metadata | `chenile-framework/http/router.go` |
-| Spring annotations | explicit operation registration | `customer/controller.go`, `order/controller.go` |
+| Spring annotations | explicit operation registration | generated `*/contract/controller.go` and `*/module/module.go` |
 | Spring DI | constructors and explicit module registration | `NewService()`, `Register(...)` |
 | Cucumber JVM | Godog | `chenile-framework/bdd-utils/godog`, `*.feature` files |
 | Spring MockMvc | `net/http/httptest` in Godog utilities | `chenile-framework/bdd-utils/godog/rest.go` |

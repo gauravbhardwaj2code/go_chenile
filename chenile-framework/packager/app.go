@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"chenile"
 	"core"
 	chenilehttp "http"
 )
@@ -17,6 +18,12 @@ type App struct {
 	Registry *core.Registry
 	Router   *chenilehttp.Router
 	Modules  []Module
+}
+
+type ChenileApp struct {
+	Registry *core.Registry
+	Router   *chenilehttp.Router
+	Modules  []chenile.Module
 }
 
 func NewWebApp(modules ...Module) (*App, error) {
@@ -44,6 +51,33 @@ func NewWebApp(modules ...Module) (*App, error) {
 	}, nil
 }
 
+func NewChenileWebApp(modules ...chenile.Module) (*ChenileApp, error) {
+	registry := core.NewRegistry()
+	builder := chenile.NewBuilder(registry)
+	for _, module := range modules {
+		if module.Name() == "" {
+			return nil, fmt.Errorf("module name is required")
+		}
+		if err := module.Register(builder); err != nil {
+			return nil, fmt.Errorf("register module %q: %w", module.Name(), err)
+		}
+	}
+	entryPoint := core.NewEntryPoint(registry)
+	router := chenilehttp.NewRouter(entryPoint)
+	if err := router.MountRegistry(registry); err != nil {
+		return nil, err
+	}
+	return &ChenileApp{
+		Registry: registry,
+		Router:   router,
+		Modules:  append([]chenile.Module{}, modules...),
+	}, nil
+}
+
 func (a *App) ListenAndServe(address string) error {
+	return http.ListenAndServe(address, a.Router)
+}
+
+func (a *ChenileApp) ListenAndServe(address string) error {
 	return http.ListenAndServe(address, a.Router)
 }

@@ -4,14 +4,14 @@ import (
 	"io"
 	"testing"
 
-	godogtest "bdd-utils/godog"
 	"packager"
+	godogtest "bdd-utils/godog"
 
-	"customer-service/customer"
+	"customer-service/customer/module"
 )
 
 func TestCreateCustomer(t *testing.T) {
-	app, err := packager.NewWebApp(packager.Module{Name: "customer", Register: customer.Register})
+	app, err := packager.NewChenileWebApp(module.New())
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"text/template"
@@ -50,12 +51,33 @@ func run(args []string, stdout io.Writer, stderr io.Writer) int {
 		fmt.Fprintln(stderr, err)
 		return 1
 	}
+	if err := tidyGeneratedModule(target, d); err != nil {
+		fmt.Fprintln(stderr, err)
+		return 1
+	}
 	if err := updateWorkspace(target, d); err != nil {
 		fmt.Fprintf(stderr, "warning: could not update go.work: %v\n", err)
 	}
 	fmt.Fprintf(stdout, "created %s\n", target)
 	fmt.Fprintf(stdout, "next:\n  cd %s\n  go test ./...\n  go run ./cmd/%s\n", target, d.BinaryName)
 	return 0
+}
+
+func tidyGeneratedModule(target string, d data) error {
+	frameworkRoot := filepath.Clean(filepath.Join(target, d.FrameworkRoot))
+	if _, err := os.Stat(filepath.Join(frameworkRoot, "bdd-utils", "go.mod")); os.IsNotExist(err) {
+		return nil
+	} else if err != nil {
+		return err
+	}
+	cmd := exec.Command("go", "mod", "tidy")
+	cmd.Dir = target
+	cmd.Env = append(os.Environ(), "GOWORK=off")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("go mod tidy generated service: %w\n%s", err, string(output))
+	}
+	return nil
 }
 
 func derive(name string, frameworkRoot string) data {
@@ -96,19 +118,24 @@ func splitName(name string) []string {
 
 func generate(target string, d data) error {
 	files := map[string]string{
-		"go.mod":                                      goModTemplate,
-		"cmd/" + d.BinaryName + "/main.go":            mainTemplate,
-		d.Package + "/model.go":                       modelTemplate,
-		d.Package + "/service.go":                     serviceTemplate,
-		d.Package + "/controller.go":                  controllerTemplate,
-		d.Package + "/module.go":                      moduleTemplate,
-		d.Package + "/errors.go":                      errorsTemplate,
-		"config/application.yaml":                     configTemplate,
-		d.Package + "/service_test.go":                serviceUnitTestTemplate,
-		d.Package + "/controller_test.go":             controllerUnitTestTemplate,
-		"test/" + d.Package + "_service_test.go":      testTemplate,
-		"test/features/" + d.Package + ".feature":     featureTemplate,
-		"test/fixtures/create_" + d.Package + ".json": fixtureTemplate,
+		"go.mod":                                                   goModTemplate,
+		"cmd/" + d.BinaryName + "/main.go":                         mainTemplate,
+		d.Package + "/contract/request.go":                         contractRequestTemplate,
+		d.Package + "/contract/response.go":                        contractResponseTemplate,
+		d.Package + "/contract/controller.go":                      contractControllerTemplate,
+		d.Package + "/contract/controller_test.go":                 contractControllerTestTemplate,
+		d.Package + "/domain/model.go":                             domainModelTemplate,
+		d.Package + "/domain/errors.go":                            domainErrorsTemplate,
+		d.Package + "/repository/repository.go":                    repositoryTemplate,
+		d.Package + "/repository/memory_repository.go":             memoryRepositoryTemplate,
+		d.Package + "/service/service.go":                          serviceTemplate,
+		d.Package + "/service/service_test.go":                     serviceTestTemplate,
+		d.Package + "/module/module.go":                            moduleTemplate,
+		"config/application.yaml":                                  configTemplate,
+		"test/" + d.Package + "_service_test.go":                   testTemplate,
+		"test/features/" + d.Package + ".feature":                  featureTemplate,
+		"test/fixtures/create_" + d.Package + ".json":              fixtureTemplate,
+		"test/fixtures/create_" + d.Package + "_missing_name.json": invalidFixtureTemplate,
 	}
 	for path, source := range files {
 		if err := render(filepath.Join(target, path), source, d); err != nil {
@@ -174,14 +201,27 @@ toolchain go1.26.3
 require (
 	bdd-utils v0.0.0
 	base v0.0.0
+	chenile v0.0.0
 	config v0.0.0
-	core v0.0.0
-	http v0.0.0
 	packager v0.0.0
+)
+
+require (
+	github.com/cucumber/gherkin/go/v26 v26.2.0 // indirect
+	github.com/cucumber/godog v0.15.1 // indirect
+	github.com/cucumber/messages/go/v21 v21.0.1 // indirect
+	github.com/gofrs/uuid v4.3.1+incompatible // indirect
+	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
+	github.com/hashicorp/go-memdb v1.3.4 // indirect
+	github.com/hashicorp/golang-lru v0.5.4 // indirect
+	github.com/spf13/pflag v1.0.7 // indirect
+	http v0.0.0 // indirect
+	owiz v0.0.0 // indirect
 )
 
 replace bdd-utils => {{.FrameworkRoot}}/bdd-utils
 replace base => {{.FrameworkRoot}}/base
+replace chenile => {{.FrameworkRoot}}/chenile
 replace config => {{.FrameworkRoot}}/config
 replace core => {{.FrameworkRoot}}/core
 replace http => {{.FrameworkRoot}}/http
@@ -197,7 +237,7 @@ import (
 	"config"
 	"packager"
 
-	"{{.ModuleName}}/{{.Package}}"
+	"{{.ModuleName}}/{{.Package}}/module"
 )
 
 func main() {
@@ -205,7 +245,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	app, err := packager.NewWebApp(packager.Module{Name: "{{.Package}}", Register: {{.Package}}.Register})
+	app, err := packager.NewChenileWebApp(module.New())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -215,81 +255,128 @@ func main() {
 }
 `
 
-const modelTemplate = `package {{.Package}}
+const contractRequestTemplate = `package contract
 
 type Create{{.TypeName}}Request struct {
 	Name string ` + "`json:\"name\"`" + `
 }
+`
+
+const contractResponseTemplate = `package contract
+
+import "{{.ModuleName}}/{{.Package}}/domain"
 
 type {{.TypeName}} struct {
 	ID   string ` + "`json:\"id\"`" + `
 	Name string ` + "`json:\"name\"`" + `
 }
-`
 
-const serviceTemplate = `package {{.Package}}
-
-import "context"
-
-type Service interface {
-	Create(context.Context, Create{{.TypeName}}Request) ({{.TypeName}}, error)
-}
-
-type service struct{}
-
-func NewService() Service {
-	return service{}
-}
-
-func (service) Create(ctx context.Context, request Create{{.TypeName}}Request) ({{.TypeName}}, error) {
-	if request.Name == "" {
-		return {{.TypeName}}{}, nameRequired()
-	}
+func New{{.TypeName}}Response(entity domain.{{.TypeName}}) {{.TypeName}} {
 	return {{.TypeName}}{
-		ID:   "{{.Package}}-1",
-		Name: request.Name,
-	}, nil
+		ID:   entity.ID,
+		Name: entity.Name,
+	}
 }
 `
 
-const controllerTemplate = `package {{.Package}}
+const contractControllerTemplate = `package contract
 
 import (
 	"context"
-	"net/http"
 
-	"core"
+	"chenile"
+
+	"{{.ModuleName}}/{{.Package}}/domain"
+	servicepkg "{{.ModuleName}}/{{.Package}}/service"
 )
 
-func Register(registry *core.Registry) error {
-	service := NewService()
-	return registry.RegisterService(core.ServiceDefinition{
-		ID:   "{{.ServiceID}}",
-		Name: "{{.ServiceID}}",
-		Operations: []core.OperationDefinition{
-			{
-				Name:   "create",
-				Method: http.MethodPost,
-				Path:   "{{.RouteBase}}",
-				NewInput: func() any {
-					return &Create{{.TypeName}}Request{}
-				},
-				Handler: func(ctx context.Context, exchange *core.Exchange) (any, error) {
-					request := exchange.Input.(*Create{{.TypeName}}Request)
-					return service.Create(ctx, *request)
-				},
-			},
-		},
-	})
+type Controller struct {
+	service servicepkg.Service
+}
+
+func NewController(service servicepkg.Service) Controller {
+	return Controller{service: service}
+}
+
+func Routes(service servicepkg.Service) []chenile.Route {
+	return NewController(service).Routes()
+}
+
+func (c Controller) Routes() []chenile.Route {
+	return []chenile.Route{
+		chenile.POST("{{.RouteBase}}", "create", func() *Create{{.TypeName}}Request {
+			return &Create{{.TypeName}}Request{}
+		}, c.Create),
+	}
+}
+
+func (c Controller) Create(ctx context.Context, request Create{{.TypeName}}Request) ({{.TypeName}}, error) {
+	entity, err := c.service.Create(ctx, domain.Create{{.TypeName}}Command{Name: request.Name})
+	if err != nil {
+		return {{.TypeName}}{}, err
+	}
+	return New{{.TypeName}}Response(entity), nil
 }
 `
 
-const moduleTemplate = `package {{.Package}}
+const contractControllerTestTemplate = `package contract
 
-// Package {{.Package}} is a generated Chenile service module.
+import (
+	"context"
+	"testing"
+
+	"{{.ModuleName}}/{{.Package}}/domain"
+)
+
+type fakeService struct{}
+
+func (fakeService) Create(ctx context.Context, command domain.Create{{.TypeName}}Command) (domain.{{.TypeName}}, error) {
+	return domain.{{.TypeName}}{ID: "{{.Package}}-1", Name: command.Name}, nil
+}
+
+func TestRoutesDeclareCreateOperation(t *testing.T) {
+	routes := Routes(fakeService{})
+
+	if len(routes) != 1 {
+		t.Fatalf("expected one route, got %d", len(routes))
+	}
+	if routes[0].Name != "create" {
+		t.Fatalf("expected create operation, got %q", routes[0].Name)
+	}
+	if routes[0].Path != "{{.RouteBase}}" {
+		t.Fatalf("expected {{.RouteBase}}, got %q", routes[0].Path)
+	}
+	if routes[0].NewInput == nil {
+		t.Fatal("expected input factory")
+	}
+}
+
+func TestCreateInvokesService(t *testing.T) {
+	controller := NewController(fakeService{})
+
+	payload, err := controller.Create(context.Background(), Create{{.TypeName}}Request{Name: "Alice"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if payload.Name != "Alice" {
+		t.Fatalf("expected Alice, got %q", payload.Name)
+	}
+}
 `
 
-const errorsTemplate = `package {{.Package}}
+const domainModelTemplate = `package domain
+
+type Create{{.TypeName}}Command struct {
+	Name string
+}
+
+type {{.TypeName}} struct {
+	ID   string
+	Name string
+}
+`
+
+const domainErrorsTemplate = `package domain
 
 import (
 	"net/http"
@@ -301,7 +388,7 @@ const (
 	Error{{.TypeName}}NameRequired = 1001
 )
 
-func nameRequired() error {
+func NameRequired() error {
 	return chenileerrors.Builder().
 		Status(http.StatusBadRequest).
 		Code(Error{{.TypeName}}NameRequired).
@@ -312,22 +399,99 @@ func nameRequired() error {
 }
 `
 
-const configTemplate = `service.name: {{.ServiceID}}
-server.port: 8080
-chenile.profile: local
+const repositoryTemplate = `package repository
+
+import (
+	"context"
+
+	"{{.ModuleName}}/{{.Package}}/domain"
+)
+
+type Repository interface {
+	Create(context.Context, domain.{{.TypeName}}) (domain.{{.TypeName}}, error)
+}
 `
 
-const serviceUnitTestTemplate = `package {{.Package}}
+const memoryRepositoryTemplate = `package repository
+
+import (
+	"context"
+	"fmt"
+	"sync"
+
+	"{{.ModuleName}}/{{.Package}}/domain"
+)
+
+type MemoryRepository struct {
+	mu     sync.Mutex
+	nextID int
+	values map[string]domain.{{.TypeName}}
+}
+
+func NewMemoryRepository() *MemoryRepository {
+	return &MemoryRepository{
+		nextID: 1,
+		values: map[string]domain.{{.TypeName}}{},
+	}
+}
+
+func (r *MemoryRepository) Create(ctx context.Context, entity domain.{{.TypeName}}) (domain.{{.TypeName}}, error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if entity.ID == "" {
+		entity.ID = fmt.Sprintf("{{.Package}}-%d", r.nextID)
+		r.nextID++
+	}
+	r.values[entity.ID] = entity
+	return entity, nil
+}
+`
+
+const serviceTemplate = `package service
+
+import (
+	"context"
+
+	"{{.ModuleName}}/{{.Package}}/domain"
+	"{{.ModuleName}}/{{.Package}}/repository"
+)
+
+type Service interface {
+	Create(context.Context, domain.Create{{.TypeName}}Command) (domain.{{.TypeName}}, error)
+}
+
+type service struct {
+	repository repository.Repository
+}
+
+func New(repository repository.Repository) Service {
+	return service{repository: repository}
+}
+
+func (s service) Create(ctx context.Context, command domain.Create{{.TypeName}}Command) (domain.{{.TypeName}}, error) {
+	if command.Name == "" {
+		return domain.{{.TypeName}}{}, domain.NameRequired()
+	}
+	return s.repository.Create(ctx, domain.{{.TypeName}}{
+		Name: command.Name,
+	})
+}
+`
+
+const serviceTestTemplate = `package service
 
 import (
 	"context"
 	"testing"
+
+	"{{.ModuleName}}/{{.Package}}/domain"
+	"{{.ModuleName}}/{{.Package}}/repository"
 )
 
 func TestServiceCreates{{.TypeName}}(t *testing.T) {
-	service := NewService()
+	service := New(repository.NewMemoryRepository())
 
-	{{.Package}}, err := service.Create(context.Background(), Create{{.TypeName}}Request{Name: "Alice"})
+	{{.Package}}, err := service.Create(context.Background(), domain.Create{{.TypeName}}Command{Name: "Alice"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -338,57 +502,39 @@ func TestServiceCreates{{.TypeName}}(t *testing.T) {
 		t.Fatalf("expected Alice, got %q", {{.Package}}.Name)
 	}
 }
+
+func TestServiceRejectsMissingName(t *testing.T) {
+	service := New(repository.NewMemoryRepository())
+
+	_, err := service.Create(context.Background(), domain.Create{{.TypeName}}Command{})
+	if err == nil {
+		t.Fatal("expected validation error")
+	}
+}
 `
 
-const controllerUnitTestTemplate = `package {{.Package}}
+const moduleTemplate = `package module
 
 import (
-	"context"
-	"testing"
+	"chenile"
 
-	"core"
+	"{{.ModuleName}}/{{.Package}}/contract"
+	"{{.ModuleName}}/{{.Package}}/repository"
+	"{{.ModuleName}}/{{.Package}}/service"
 )
 
-func TestRegisterAddsCreateOperation(t *testing.T) {
-	registry := core.NewRegistry()
-
-	if err := Register(registry); err != nil {
-		t.Fatal(err)
-	}
-
-	operation, ok := registry.Operation("{{.ServiceID}}", "create")
-	if !ok {
-		t.Fatal("expected create operation")
-	}
-	if operation.Path != "{{.RouteBase}}" {
-		t.Fatalf("expected {{.RouteBase}}, got %q", operation.Path)
-	}
-	if operation.NewInput == nil {
-		t.Fatal("expected input factory")
-	}
-}
-
-func TestRegisteredCreateHandlerInvokesService(t *testing.T) {
-	registry := core.NewRegistry()
-	if err := Register(registry); err != nil {
-		t.Fatal(err)
-	}
-	operation, ok := registry.Operation("{{.ServiceID}}", "create")
-	if !ok {
-		t.Fatal("expected create operation")
-	}
-
-	payload, err := operation.Handler(context.Background(), &core.Exchange{
-		Input: &Create{{.TypeName}}Request{Name: "Alice"},
+func New() chenile.Module {
+	return chenile.NewModule("{{.Package}}", func(builder *chenile.Builder) error {
+		repo := repository.NewMemoryRepository()
+		svc := service.New(repo)
+		return builder.Service("{{.ServiceID}}").Routes(contract.Routes(svc)...)
 	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	{{.Package}} := payload.({{.TypeName}})
-	if {{.Package}}.Name != "Alice" {
-		t.Fatalf("expected Alice, got %q", {{.Package}}.Name)
-	}
 }
+`
+
+const configTemplate = `service.name: {{.ServiceID}}
+server.port: 8080
+chenile.profile: local
 `
 
 const testTemplate = `package test
@@ -400,11 +546,11 @@ import (
 	"packager"
 	godogtest "bdd-utils/godog"
 
-	"{{.ModuleName}}/{{.Package}}"
+	"{{.ModuleName}}/{{.Package}}/module"
 )
 
 func TestCreate{{.TypeName}}(t *testing.T) {
-	app, err := packager.NewWebApp(packager.Module{Name: "{{.Package}}", Register: {{.Package}}.Register})
+	app, err := packager.NewChenileWebApp(module.New())
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -434,9 +580,25 @@ const featureTemplate = `Feature: {{.TypeName}} service
     Then the http status code is 200
     And success is true
     And the REST response key "name" is "Alice"
+
+  Scenario: Reject {{.Package}} without name
+    When I POST a REST request to URL "{{.RouteBase}}" with payload
+      """
+      {
+        "name": ""
+      }
+      """
+    Then the http status code is 400
+    And success is false
+    And the error array size is 2
 `
 
 const fixtureTemplate = `{
   "name": "Alice"
+}
+`
+
+const invalidFixtureTemplate = `{
+  "name": ""
 }
 `

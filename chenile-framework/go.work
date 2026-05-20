@@ -5,6 +5,7 @@ toolchain go1.26.3
 use (
 	./base
 	./bdd-utils
+	./chenile
 	./config
 	./core
 	./http
@@ -14,4 +15,7 @@ use (
 	./servicegen
 	./stateentity
 	./stm
+	./../chenile-examples/inventory-service
+	./../chenile-examples/customer-service
+	./../chenile-examples/order-service
 )

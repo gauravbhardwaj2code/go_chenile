@@ -26,22 +26,35 @@ inventory-service/
 │   └── inventory-service/
 │       └── main.go
 ├── inventory/
-│   ├── controller.go
-│   ├── controller_test.go
-│   ├── model.go
-│   ├── module.go
-│   ├── service.go
-│   └── service_test.go
+│   ├── contract/
+│   │   ├── controller.go
+│   │   ├── controller_test.go
+│   │   ├── request.go
+│   │   └── response.go
+│   ├── domain/
+│   │   ├── errors.go
+│   │   └── model.go
+│   ├── module/
+│   │   └── module.go
+│   ├── repository/
+│   │   ├── memory_repository.go
+│   │   └── repository.go
+│   └── service/
+│       ├── service.go
+│       └── service_test.go
+├── config/
+│   └── application.yaml
 ├── test/
 │   ├── features/
 │   │   └── inventory.feature
 │   ├── fixtures/
-│   │   └── create_inventory.json
+│   │   ├── create_inventory.json
+│   │   └── create_inventory_missing_name.json
 │   └── inventory_service_test.go
 └── go.mod
 ```
 
-There is no config directory. Services are wired explicitly in Go code.
+Generated services use layered packages: `contract` for HTTP request/response adapters, `domain` for entities and domain errors, `service` for business logic, `repository` for persistence abstraction, and `module` for framework wiring.
 
 ## Run Tests
 

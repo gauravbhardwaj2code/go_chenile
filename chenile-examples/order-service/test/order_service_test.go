@@ -4,14 +4,14 @@ import (
 	"io"
 	"testing"
 
-	godogtest "bdd-utils/godog"
 	"packager"
+	godogtest "bdd-utils/godog"
 
-	"order-service/order"
+	"order-service/order/module"
 )
 
 func TestCreateOrder(t *testing.T) {
-	app, err := packager.NewWebApp(packager.Module{Name: "order", Register: order.Register})
+	app, err := packager.NewChenileWebApp(module.New())
 	if err != nil {
 		t.Fatal(err)
 	}
