@@ -36,6 +36,7 @@ func TestGenerateWritesRunnableServiceSkeleton(t *testing.T) {
 
 	expectedFiles := []string{
 		"go.mod",
+		"README.md",
 		"cmd/customer-service/main.go",
 		"customer/contract/request.go",
 		"customer/contract/response.go",
@@ -49,6 +50,7 @@ func TestGenerateWritesRunnableServiceSkeleton(t *testing.T) {
 		"customer/service/service_test.go",
 		"customer/module/module.go",
 		"config/application.yaml",
+		"scripts/use-local-chenile.sh",
 		"test/customer_service_test.go",
 		"test/features/customer.feature",
 		"test/fixtures/create_customer.json",
@@ -75,6 +77,13 @@ func TestGenerateWritesRunnableServiceSkeleton(t *testing.T) {
 	}
 	if !strings.Contains(string(module), "func New() chenile.Module") {
 		t.Fatalf("expected high-level module constructor:\n%s", string(module))
+	}
+	readme, err := os.ReadFile(filepath.Join(target, "README.md"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(readme), "go run ./cmd/customer-service") {
+		t.Fatalf("expected run command in README:\n%s", string(readme))
 	}
 }
 

@@ -126,6 +126,7 @@ func splitName(name string) []string {
 func generate(target string, d data) error {
 	files := map[string]string{
 		"go.mod":                                                   goModTemplate,
+		"README.md":                                                readmeTemplate,
 		"cmd/" + d.BinaryName + "/main.go":                         mainTemplate,
 		d.Package + "/contract/request.go":                         contractRequestTemplate,
 		d.Package + "/contract/response.go":                        contractResponseTemplate,
@@ -139,6 +140,7 @@ func generate(target string, d data) error {
 		d.Package + "/service/service_test.go":                     serviceTestTemplate,
 		d.Package + "/module/module.go":                            moduleTemplate,
 		"config/application.yaml":                                  configTemplate,
+		"scripts/use-local-chenile.sh":                             useLocalChenileTemplate,
 		"test/" + d.Package + "_service_test.go":                   testTemplate,
 		"test/features/" + d.Package + ".feature":                  featureTemplate,
 		"test/fixtures/create_" + d.Package + ".json":              fixtureTemplate,
@@ -236,6 +238,70 @@ replace github.com/gauravbhardwaj2code/go_chenile/chenile-framework/http => {{.F
 replace github.com/gauravbhardwaj2code/go_chenile/chenile-framework/owiz => {{.FrameworkRoot}}/owiz
 replace github.com/gauravbhardwaj2code/go_chenile/chenile-framework/packager => {{.FrameworkRoot}}/packager
 {{end}}
+`
+
+const readmeTemplate = `# {{.TypeName}} Service
+
+This is a generated Chenile-Go service.
+
+## Run inside go_chenile
+
+From this service directory:
+
+` + "```bash" + `
+GOWORK=$(cd ../../chenile-framework && pwd)/go.work go test ./...
+GOWORK=$(cd ../../chenile-framework && pwd)/go.work go run ./cmd/{{.BinaryName}}
+` + "```" + `
+
+The service listens on port ` + "`8080`" + ` by default. Change ` + "`config/application.yaml`" + ` to use another port.
+
+## Run after copying this service
+
+If the Chenile modules in ` + "`go.mod`" + ` are published and tagged in the public repository, run:
+
+` + "```bash" + `
+go mod tidy
+go test ./...
+go run ./cmd/{{.BinaryName}}
+` + "```" + `
+
+If those public tags are not available yet, point this copied service at a local Chenile framework checkout first:
+
+` + "```bash" + `
+bash scripts/use-local-chenile.sh /absolute/path/to/go_chenile/chenile-framework
+go test ./...
+go run ./cmd/{{.BinaryName}}
+` + "```" + `
+
+## Smoke test
+
+In another terminal:
+
+` + "```bash" + `
+curl -X POST http://localhost:8080{{.RouteBase}} \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Alice"}'
+` + "```" + `
+`
+
+const useLocalChenileTemplate = `#!/usr/bin/env sh
+set -eu
+
+if [ "$#" -ne 1 ]; then
+  echo "usage: $0 /absolute/path/to/go_chenile/chenile-framework" >&2
+  exit 2
+fi
+
+framework_root=$1
+for module in base bdd-utils chenile config core http owiz packager; do
+  if [ ! -f "$framework_root/$module/go.mod" ]; then
+    echo "missing $framework_root/$module/go.mod" >&2
+    exit 1
+  fi
+  go mod edit -replace "github.com/gauravbhardwaj2code/go_chenile/chenile-framework/$module=$framework_root/$module"
+done
+
+go mod tidy
 `
 
 const mainTemplate = `package main

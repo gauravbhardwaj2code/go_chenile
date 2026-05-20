@@ -235,6 +235,14 @@ Use `--public-deps` when the generated service should depend directly on publish
 
 Generated services include a config folder for the port and service name. Service wiring is explicit in Go code.
 
+Each generated service also includes its own `README.md` with run commands. If you copy a generated service before the public Chenile module tags exist, run the included helper first:
+
+```bash
+bash scripts/use-local-chenile.sh /absolute/path/to/go_chenile/chenile-framework
+go test ./...
+go run ./cmd/<service-name>
+```
+
 ## Architecture Map
 
 ```text
